@@ -1,11 +1,27 @@
 {
   "scripts": {
-    "dev": "bun run --hot src/index.ts"
+    "dev": "bun run --watch src/index.ts",
+    "lint": "eslint --fix ./src/**/*.ts",
+    "format": "prettier -cw ./src/**/*.ts"
   },
   "dependencies": {
-    "hono": "^4.1.5"
+    "@hono/zod-validator": "^0.2.1",
+    "argon2": "^0.40.1",
+    "hono": "^4.1.5",
+    "kysely": "^0.27.3",
+    "pg": "^8.11.4",
+    "zod": "^3.22.4"
   },
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "@types/pg": "^8.11.4",
+    "@typescript-eslint/eslint-plugin": "^7.4.0",
+    "@typescript-eslint/parser": "^7.4.0",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-config-xo": "^0.44.0",
+    "eslint-config-xo-typescript": "^4.0.0",
+    "kysely-codegen": "^0.14.1",
+    "prettier": "^3.2.5"
   }
 }
