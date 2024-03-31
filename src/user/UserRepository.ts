@@ -4,7 +4,7 @@ import { type Users } from 'kysely-codegen';
 
 import db from '../db';
 
-export async function createUser(newUser: Insertable<Users>): Promise<void> {
+export async function createUser(newUser: Insertable<Users>) {
   try {
     await verifyEmailAvailability(newUser.email);
     await verifyUsernameAvailability(newUser.username);
@@ -18,7 +18,7 @@ export async function createUser(newUser: Insertable<Users>): Promise<void> {
   }
 }
 
-async function verifyEmailAvailability(email: string): Promise<void> {
+async function verifyEmailAvailability(email: string) {
   try {
     const user = await db
       .selectFrom('users')
@@ -37,7 +37,7 @@ async function verifyEmailAvailability(email: string): Promise<void> {
   }
 }
 
-async function verifyUsernameAvailability(username: string): Promise<void> {
+async function verifyUsernameAvailability(username: string) {
   try {
     const user = await db
       .selectFrom('users')
@@ -52,6 +52,21 @@ async function verifyUsernameAvailability(username: string): Promise<void> {
 
     throw new HTTPException(500, {
       message: 'failed to verify username availability',
+      cause: error,
+    });
+  }
+}
+
+export async function findUserByUsername(username: string) {
+  try {
+    return await db
+      .selectFrom('users')
+      .selectAll()
+      .where('username', '=', username)
+      .executeTakeFirstOrThrow();
+  } catch (error) {
+    throw new HTTPException(404, {
+      message: `user with username ${username} is not found`,
       cause: error,
     });
   }

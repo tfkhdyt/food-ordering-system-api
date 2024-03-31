@@ -1,0 +1,23 @@
+meta {
+  name: Login
+  type: http
+  seq: 2
+}
+
+post {
+  url: http://localhost:8080/auth/users/login
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "username": "tfkhdyt",
+    "password": "tafanizer14"
+  }
+}
+
+vars:post-response {
+  access_token: res.body.data.access_token
+  refresh_token: res.body.data.refresh_token
+}
