@@ -16,7 +16,7 @@ type JWTResponse = {
 };
 
 export type JWTPayload = {
-  sub: string;
+  sub: number;
   username: string;
   exp: number;
 };

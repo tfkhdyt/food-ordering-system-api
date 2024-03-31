@@ -3,6 +3,7 @@ import { HTTPException } from 'hono/http-exception';
 import { logger } from 'hono/logger';
 
 import { env } from './env';
+import siteInformation from './site/SiteController';
 import user from './user/UserController';
 
 const app = new Hono();
@@ -27,7 +28,8 @@ app
     );
   })
   .use(logger())
-  .route('/auth/users', user);
+  .route('/auth/users', user)
+  .route('/site-informations', siteInformation);
 
 export default {
   port: env.PORT ?? 8080,
