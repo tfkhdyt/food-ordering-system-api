@@ -1,0 +1,21 @@
+meta {
+  name: Register
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:8080/auth/users/register
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "full_name": "Taufik Hidayat",
+    "contact": "0895338865375",
+    "email": "tfkhdyt@proton.me",
+    "username": "tfkhdyt",
+    "password": "tafanizer14"
+  }
+}

@@ -1,0 +1,15 @@
+-- migrate:up
+CREATE TABLE users (
+  id SERIAL PRIMARY KEY,
+  full_name VARCHAR(100) NOT NULL,
+  contact VARCHAR(25),
+  email VARCHAR(100) NOT NULL UNIQUE,
+  username VARCHAR(25) NOT NULL UNIQUE,
+  password VARCHAR(255) NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- migrate:down
+DROP TABLE users;
+

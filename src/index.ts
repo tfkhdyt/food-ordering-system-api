@@ -1,9 +1,35 @@
-import { Hono } from 'hono'
+import { Hono } from 'hono';
+import { HTTPException } from 'hono/http-exception';
+import { logger } from 'hono/logger';
 
-const app = new Hono()
+import { env } from './env';
+import user from './user/UserController';
 
-app.get('/', (c) => {
-  return c.text('Hello Hono!')
-})
+const app = new Hono();
 
-export default app
+app
+  .onError((err, c) => {
+    console.error('Error:', err);
+    if (err.cause) {
+      console.error(err.cause);
+    }
+
+    if (err instanceof HTTPException) {
+      return c.json(
+        { message: err.message || 'error' },
+        { status: err.status },
+      );
+    }
+
+    return c.json(
+      { message: err.message || 'internal server error' },
+      { status: 500 },
+    );
+  })
+  .use(logger())
+  .route('/auth/users', user);
+
+export default {
+  port: env.PORT ?? 8080,
+  fetch: app.fetch,
+};
