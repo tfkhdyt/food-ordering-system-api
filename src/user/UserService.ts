@@ -15,6 +15,12 @@ type JWTResponse = {
   };
 };
 
+export type JWTPayload = {
+  sub: string;
+  username: string;
+  exp: number;
+};
+
 export async function register(newUser: Register): Promise<MessageResponse> {
   try {
     newUser.password = await hash(newUser.password);
@@ -72,4 +78,10 @@ export async function login(credentials: Login): Promise<JWTResponse> {
       cause: error,
     });
   }
+}
+
+export async function inspect(username: string) {
+  const user = await findUserByUsername(username);
+
+  return { ...user, password: undefined };
 }
