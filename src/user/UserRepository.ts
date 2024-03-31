@@ -1,6 +1,6 @@
 import { HTTPException } from 'hono/http-exception';
-import { Insertable } from 'kysely';
-import { Users } from 'kysely-codegen';
+import { type Insertable } from 'kysely';
+import { type Users } from 'kysely-codegen';
 
 import db from '../db';
 

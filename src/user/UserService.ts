@@ -1,9 +1,9 @@
 import { hash } from 'argon2';
 import { HTTPException } from 'hono/http-exception';
 
-import { MessageResponse } from '../types';
+import { type MessageResponse } from '../types';
 import { createUser } from './UserRepository';
-import { CreateUser } from './UserSchema';
+import { type CreateUser } from './UserSchema';
 
 export async function register(newUser: CreateUser): Promise<MessageResponse> {
   try {
