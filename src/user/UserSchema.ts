@@ -14,3 +14,8 @@ export const loginSchema = z.object({
   password: z.string().min(8),
 });
 export type Login = z.infer<typeof loginSchema>;
+
+export const refreshTokenSchema = z.object({
+  refresh_token: z.string(),
+});
+export type RefreshToken = z.infer<typeof refreshTokenSchema>;

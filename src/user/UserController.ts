@@ -3,8 +3,14 @@ import { Hono } from 'hono';
 import { jwt } from 'hono/jwt';
 
 import { env } from '../env';
-import { loginSchema, registerSchema } from './UserSchema';
-import { type JWTPayload, inspect, login, register } from './UserService';
+import { loginSchema, refreshTokenSchema, registerSchema } from './UserSchema';
+import {
+  type JWTPayload,
+  inspect,
+  login,
+  refreshToken,
+  register,
+} from './UserService';
 
 const user = new Hono();
 
@@ -30,6 +36,14 @@ user.get('/inspect', jwt({ secret: env.JWT_ACCESS_KEY }), async (c) => {
   const resp = await inspect(jwtPayload.username);
 
   return c.json(resp);
+});
+
+user.post('/refresh', zValidator('json', refreshTokenSchema), async (c) => {
+  const payload = c.req.valid('json');
+
+  const resp = await refreshToken(payload.refresh_token);
+
+  return c.json(resp, { status: resp.statusCode });
 });
 
 export default user;

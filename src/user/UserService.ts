@@ -1,6 +1,6 @@
-import { hash, verify } from 'argon2';
+import { hash, verify as verifyArgon } from 'argon2';
 import { HTTPException } from 'hono/http-exception';
-import { sign } from 'hono/jwt';
+import { sign, verify } from 'hono/jwt';
 
 import { env } from '../env';
 import { type MessageResponse } from '../types';
@@ -42,7 +42,7 @@ export async function login(credentials: Login): Promise<JWTResponse> {
   try {
     const user = await findUserByUsername(credentials.username);
 
-    if (!(await verify(user.password, credentials.password))) {
+    if (!(await verifyArgon(user.password, credentials.password))) {
       throw new HTTPException(401, { message: 'password is invalid' });
     }
 
@@ -84,4 +84,43 @@ export async function inspect(username: string) {
   const user = await findUserByUsername(username);
 
   return { ...user, password: undefined };
+}
+
+export async function refreshToken(token: string) {
+  try {
+    const jwtPayload = (await verify(token, env.JWT_REFRESH_KEY)) as JWTPayload;
+    const user = await findUserByUsername(jwtPayload.username);
+
+    const accessToken = await sign(
+      {
+        sub: user.id,
+        username: user.username,
+        exp: Math.floor(Date.now() / 1000) + 5 * 60,
+      },
+      env.JWT_ACCESS_KEY,
+    );
+    const refreshToken = await sign(
+      {
+        sub: user.id,
+        username: user.username,
+        exp: Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60,
+      },
+      env.JWT_REFRESH_KEY,
+    );
+
+    return {
+      statusCode: 201,
+      data: {
+        access_token: accessToken,
+        refresh_token: refreshToken,
+      },
+    };
+  } catch (error) {
+    if (error instanceof HTTPException) throw error;
+
+    throw new HTTPException(500, {
+      message: 'an error is occured',
+      cause: error,
+    });
+  }
 }

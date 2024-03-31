@@ -1,0 +1,22 @@
+meta {
+  name: Refresh Token
+  type: http
+  seq: 4
+}
+
+post {
+  url: http://localhost:8080/auth/users/refresh
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "refresh_token": "{{refresh_token}}"
+  }
+}
+
+vars:post-response {
+  access_token: res.body.data.access_token
+  refresh_token: res.body.data.refresh_token
+}
