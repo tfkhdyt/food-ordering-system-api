@@ -18,3 +18,18 @@ export async function upsertSiteInformation(
     });
   }
 }
+
+export async function findMySiteInfo(userId: number) {
+  try {
+    return await db
+      .selectFrom('site_informations')
+      .selectAll()
+      .where('user_id', '=', userId)
+      .execute();
+  } catch (error) {
+    throw new HTTPException(500, {
+      message: 'failed to get site information',
+      cause: error,
+    });
+  }
+}
