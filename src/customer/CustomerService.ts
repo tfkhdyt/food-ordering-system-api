@@ -1,4 +1,5 @@
 import { hash, verify } from 'argon2';
+import { password } from 'bun';
 import { HTTPException } from 'hono/http-exception';
 import { sign } from 'hono/jwt';
 
@@ -68,4 +69,10 @@ export async function customerLogin(payload: CustomerLoginSchema) {
       cause: error,
     });
   }
+}
+
+export async function customerInspect(username: string) {
+  const customer = await findCustomerByUsername(username);
+
+  return { ...customer, password: undefined };
 }
