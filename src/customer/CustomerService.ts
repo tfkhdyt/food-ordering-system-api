@@ -1,9 +1,10 @@
-import { hash, verify } from 'argon2';
+import { hash, verify as verifyPwd } from 'argon2';
 import { password } from 'bun';
 import { HTTPException } from 'hono/http-exception';
-import { sign } from 'hono/jwt';
+import { sign, verify } from 'hono/jwt';
 
 import { env } from '../env';
+import { type JWTPayload } from '../types';
 import { createCustomer, findCustomerByUsername } from './CustomerRepository';
 import {
   type CustomerLoginSchema,
@@ -28,15 +29,15 @@ export async function register(newCustomer: CustomerRegisterSchema) {
 
 export async function customerLogin(payload: CustomerLoginSchema) {
   try {
-    const user = await findCustomerByUsername(payload.username);
-    if (!(await verify(user.password, payload.password))) {
+    const customer = await findCustomerByUsername(payload.username);
+    if (!(await verifyPwd(customer.password, payload.password))) {
       throw new HTTPException(401, { message: 'password is invalid' });
     }
 
     const accessToken = await sign(
       {
-        sub: user.id,
-        username: user.username,
+        sub: customer.id,
+        username: customer.username,
         exp: Math.floor(Date.now() / 1000) + 5 * 60,
         iat: Date.now() / 1000,
         nbf: Date.now() / 1000,
@@ -45,8 +46,8 @@ export async function customerLogin(payload: CustomerLoginSchema) {
     );
     const refreshToken = await sign(
       {
-        sub: user.id,
-        username: user.username,
+        sub: customer.id,
+        username: customer.username,
         exp: Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60,
         iat: Date.now() / 1000,
         nbf: Date.now() / 1000,
@@ -75,4 +76,47 @@ export async function customerInspect(username: string) {
   const customer = await findCustomerByUsername(username);
 
   return { ...customer, password: undefined };
+}
+
+export async function customerRefreshToken(token: string) {
+  try {
+    const claims = (await verify(token, env.JWT_REFRESH_KEY)) as JWTPayload;
+    const customer = await findCustomerByUsername(claims.username);
+
+    const accessToken = await sign(
+      {
+        sub: customer.id,
+        username: customer.username,
+        exp: Math.floor(Date.now() / 1000) + 5 * 60,
+        iat: Date.now() / 1000,
+        nbf: Date.now() / 1000,
+      },
+      env.JWT_ACCESS_KEY,
+    );
+    const refreshToken = await sign(
+      {
+        sub: customer.id,
+        username: customer.username,
+        exp: Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60,
+        iat: Date.now() / 1000,
+        nbf: Date.now() / 1000,
+      },
+      env.JWT_REFRESH_KEY,
+    );
+
+    return {
+      statusCode: 201,
+      data: {
+        access_token: accessToken,
+        refresh_token: refreshToken,
+      },
+    };
+  } catch (error) {
+    if (error instanceof HTTPException) throw error;
+
+    throw new HTTPException(500, {
+      message: 'an error is occured',
+      cause: error,
+    });
+  }
 }
