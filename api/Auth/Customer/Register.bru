@@ -1,0 +1,24 @@
+meta {
+  name: Register
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:8080/auth/customers/register
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "first_name": "Taufik",
+    "middle_name": null,
+    "last_name": "Hidayat",
+    "email": "tfkhdyt@proton.me",
+    "phone_number": "0895338865375",
+    "address": "Munjul",
+    "username": "tfkhdyt",
+    "password": "tafanizer14"
+  }
+}

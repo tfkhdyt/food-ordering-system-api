@@ -3,7 +3,7 @@ import { HTTPException } from 'hono/http-exception';
 import { sign, verify } from 'hono/jwt';
 
 import { env } from '../env';
-import { type MessageResponse } from '../types';
+import { type JWTPayload, type MessageResponse } from '../types';
 import { createUser, findUserByUsername } from './UserRepository';
 import { type Login, type Register } from './UserSchema';
 
@@ -13,12 +13,6 @@ type JWTResponse = {
     access_token: string;
     refresh_token: string;
   };
-};
-
-export type JWTPayload = {
-  sub: number;
-  username: string;
-  exp: number;
 };
 
 export async function register(newUser: Register): Promise<MessageResponse> {

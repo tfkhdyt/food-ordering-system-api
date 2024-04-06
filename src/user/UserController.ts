@@ -1,17 +1,10 @@
 import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';
-import { jwt } from 'hono/jwt';
 
-import { env } from '../env';
 import { jwtware } from '../lib';
+import { type JWTPayload } from '../types';
 import { loginSchema, refreshTokenSchema, registerSchema } from './UserSchema';
-import {
-  type JWTPayload,
-  inspect,
-  login,
-  refreshToken,
-  register,
-} from './UserService';
+import { inspect, login, refreshToken, register } from './UserService';
 
 const user = new Hono();
 

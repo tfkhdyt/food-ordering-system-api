@@ -16,9 +16,61 @@ SET row_security = off;
 -- *not* creating schema, since initdb creates it
 
 
+--
+-- Name: account_status; Type: TYPE; Schema: public; Owner: -
+--
+
+CREATE TYPE public.account_status AS ENUM (
+    'unverified',
+    'verified',
+    'inactive'
+);
+
+
 SET default_tablespace = '';
 
 SET default_table_access_method = heap;
+
+--
+-- Name: customers; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.customers (
+    id integer NOT NULL,
+    first_name character varying(25) NOT NULL,
+    middle_name character varying(25),
+    last_name character varying(25),
+    email character varying(50) NOT NULL,
+    phone_number character varying(15) NOT NULL,
+    address text NOT NULL,
+    profile_image text,
+    username character varying(50) NOT NULL,
+    password character varying(255) NOT NULL,
+    account_status public.account_status DEFAULT 'unverified'::public.account_status NOT NULL,
+    created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+
+--
+-- Name: customers_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.customers_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: customers_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.customers_id_seq OWNED BY public.customers.id;
+
 
 --
 -- Name: schema_migrations; Type: TABLE; Schema: public; Owner: -
@@ -102,6 +154,13 @@ ALTER SEQUENCE public.users_id_seq OWNED BY public.users.id;
 
 
 --
+-- Name: customers id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.customers ALTER COLUMN id SET DEFAULT nextval('public.customers_id_seq'::regclass);
+
+
+--
 -- Name: site_informations id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -113,6 +172,38 @@ ALTER TABLE ONLY public.site_informations ALTER COLUMN id SET DEFAULT nextval('p
 --
 
 ALTER TABLE ONLY public.users ALTER COLUMN id SET DEFAULT nextval('public.users_id_seq'::regclass);
+
+
+--
+-- Name: customers customers_email_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.customers
+    ADD CONSTRAINT customers_email_key UNIQUE (email);
+
+
+--
+-- Name: customers customers_phone_number_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.customers
+    ADD CONSTRAINT customers_phone_number_key UNIQUE (phone_number);
+
+
+--
+-- Name: customers customers_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.customers
+    ADD CONSTRAINT customers_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: customers customers_username_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.customers
+    ADD CONSTRAINT customers_username_key UNIQUE (username);
 
 
 --
@@ -182,4 +273,5 @@ ALTER TABLE ONLY public.site_informations
 
 INSERT INTO public.schema_migrations (version) VALUES
     ('20240331001218'),
-    ('20240331102714');
+    ('20240331102714'),
+    ('20240405234210');

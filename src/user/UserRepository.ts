@@ -11,6 +11,8 @@ export async function createUser(newUser: Insertable<Users>) {
 
     await db.insertInto('users').values(newUser).executeTakeFirstOrThrow();
   } catch (error) {
+    if (error instanceof HTTPException) throw error;
+
     throw new HTTPException(400, {
       message: 'failed to create new user',
       cause: error,
