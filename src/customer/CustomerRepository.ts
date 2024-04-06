@@ -78,3 +78,18 @@ async function verifyUsernameAvailability(username: string) {
     });
   }
 }
+
+export async function findCustomerByUsername(username: string) {
+  try {
+    return await db
+      .selectFrom('customers')
+      .selectAll()
+      .where('username', '=', username)
+      .executeTakeFirstOrThrow();
+  } catch (error) {
+    throw new HTTPException(404, {
+      message: `customer with username ${username} is not found`,
+      cause: error,
+    });
+  }
+}

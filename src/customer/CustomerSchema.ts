@@ -11,3 +11,9 @@ export const customerRegisterSchema = z.object({
   password: z.string().min(8),
 });
 export type CustomerRegisterSchema = z.infer<typeof customerRegisterSchema>;
+
+export const customerLoginSchema = z.object({
+  username: z.string().max(25),
+  password: z.string().min(8),
+});
+export type CustomerLoginSchema = z.infer<typeof customerLoginSchema>;

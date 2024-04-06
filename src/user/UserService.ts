@@ -45,6 +45,8 @@ export async function login(credentials: Login): Promise<JWTResponse> {
         sub: user.id,
         username: user.username,
         exp: Math.floor(Date.now() / 1000) + 5 * 60,
+        iat: Date.now() / 1000,
+        nbf: Date.now() / 1000,
       },
       env.JWT_ACCESS_KEY,
     );
@@ -53,6 +55,8 @@ export async function login(credentials: Login): Promise<JWTResponse> {
         sub: user.id,
         username: user.username,
         exp: Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60,
+        iat: Date.now() / 1000,
+        nbf: Date.now() / 1000,
       },
       env.JWT_REFRESH_KEY,
     );
