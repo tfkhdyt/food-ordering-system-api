@@ -2,7 +2,7 @@ import { HTTPException } from 'hono/http-exception';
 import { type Insertable } from 'kysely';
 import { type Users } from 'kysely-codegen';
 
-import db from '../db';
+import db from '@/db';
 
 export async function createUser(newUser: Insertable<Users>) {
   try {

@@ -1,8 +1,9 @@
 import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';
 
-import { jwtware } from '../lib';
-import { type JWTPayload } from '../user/UserService';
+import { jwtware } from '@/lib';
+import { type JWTPayload } from '@/types';
+
 import { setSiteInfoSchema } from './SiteSchema';
 import { getSiteInformation, setSiteInformation } from './SiteService';
 

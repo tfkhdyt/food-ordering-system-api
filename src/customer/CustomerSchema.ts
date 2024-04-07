@@ -17,3 +17,11 @@ export const customerLoginSchema = z.object({
   password: z.string().min(8),
 });
 export type CustomerLoginSchema = z.infer<typeof customerLoginSchema>;
+
+export const setProfileImage = z.object({
+  file: z
+    .instanceof(File)
+    .refine((file) => file.size !== 0, 'file is empty')
+    .refine((file) => file.type.startsWith('image/'), 'file should be an image')
+    .refine((file) => file.size < 1_000_000, 'file should be less than 1MB'),
+});

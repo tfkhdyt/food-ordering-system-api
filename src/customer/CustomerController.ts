@@ -1,14 +1,20 @@
 import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';
 
-import { jwtware } from '../lib';
-import { type JWTPayload } from '../types';
-import { refreshTokenSchema } from '../user/UserSchema';
-import { customerLoginSchema, customerRegisterSchema } from './CustomerSchema';
+import { jwtware } from '@/lib';
+import { type JWTPayload } from '@/types';
+import { refreshTokenSchema } from '@/user/UserSchema';
+
+import {
+  customerLoginSchema,
+  customerRegisterSchema,
+  setProfileImage as setProfileImageSchema,
+} from './CustomerSchema';
 import {
   customerInspect,
   customerLogin,
   customerRefreshToken,
+  patchCustomerProfileImage,
   register,
 } from './CustomerService';
 
@@ -49,5 +55,19 @@ customer.post('/refresh', zValidator('json', refreshTokenSchema), async (c) => {
 
   return c.json(resp, { status: resp.statusCode });
 });
+
+customer.patch(
+  '/profile-images',
+  zValidator('form', setProfileImageSchema),
+  jwtware,
+  async (c) => {
+    const payload = c.req.valid('form');
+    const claims = c.get('jwtPayload') as JWTPayload;
+
+    const resp = await patchCustomerProfileImage(payload.file, claims.username);
+
+    return c.json(resp);
+  },
+);
 
 export default customer;

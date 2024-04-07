@@ -2,8 +2,9 @@ import { hash, verify as verifyArgon } from 'argon2';
 import { HTTPException } from 'hono/http-exception';
 import { sign, verify } from 'hono/jwt';
 
-import { env } from '../env';
-import { type JWTPayload, type MessageResponse } from '../types';
+import { env } from '@/env';
+import { type JWTPayload, type MessageResponse } from '@/types';
+
 import { createUser, findUserByUsername } from './UserRepository';
 import { type Login, type Register } from './UserSchema';
 

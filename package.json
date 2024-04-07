@@ -8,6 +8,7 @@
     "@hono/zod-validator": "^0.2.1",
     "@t3-oss/env-core": "^0.9.2",
     "argon2": "^0.40.1",
+    "cloudinary": "^2.1.0",
     "hono": "^4.2.2",
     "kysely": "^0.27.3",
     "pg": "^8.11.5",

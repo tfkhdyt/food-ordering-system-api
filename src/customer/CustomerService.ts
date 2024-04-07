@@ -1,11 +1,19 @@
 import { hash, verify as verifyPwd } from 'argon2';
-import { password } from 'bun';
 import { HTTPException } from 'hono/http-exception';
 import { sign, verify } from 'hono/jwt';
 
-import { env } from '../env';
-import { type JWTPayload } from '../types';
-import { createCustomer, findCustomerByUsername } from './CustomerRepository';
+import {
+  getProfileImageUrl,
+  uploadProfileImage,
+} from '@/cloudinary/CloudinaryService';
+import { env } from '@/env';
+import { type JWTPayload } from '@/types';
+
+import {
+  createCustomer,
+  findCustomerByUsername,
+  updateCustomerProfileImage,
+} from './CustomerRepository';
 import {
   type CustomerLoginSchema,
   type CustomerRegisterSchema,
@@ -74,6 +82,7 @@ export async function customerLogin(payload: CustomerLoginSchema) {
 
 export async function customerInspect(username: string) {
   const customer = await findCustomerByUsername(username);
+  customer.profile_image &&= await getProfileImageUrl(customer.profile_image);
 
   return { ...customer, password: undefined };
 }
@@ -119,4 +128,12 @@ export async function customerRefreshToken(token: string) {
       cause: error,
     });
   }
+}
+
+export async function patchCustomerProfileImage(image: File, username: string) {
+  const fileId = await uploadProfileImage(image, username);
+
+  await updateCustomerProfileImage(username, fileId);
+
+  return { message: 'profile picture updated successfully' };
 }

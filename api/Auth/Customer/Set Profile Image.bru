@@ -1,0 +1,19 @@
+meta {
+  name: Set Profile Image
+  type: http
+  seq: 5
+}
+
+patch {
+  url: http://localhost:8080/auth/customers/profile-images
+  body: multipartForm
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+body:multipart-form {
+  file: @file(/home/tfkhdyt/Pictures/profile-picture/tfkhdyt-real-face-mocha.png)
+}

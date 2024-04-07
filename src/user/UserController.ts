@@ -1,8 +1,9 @@
 import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';
 
-import { jwtware } from '../lib';
-import { type JWTPayload } from '../types';
+import { jwtware } from '@/lib';
+import { type JWTPayload } from '@/types';
+
 import { loginSchema, refreshTokenSchema, registerSchema } from './UserSchema';
 import { inspect, login, refreshToken, register } from './UserService';
 

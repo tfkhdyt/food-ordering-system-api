@@ -93,3 +93,21 @@ export async function findCustomerByUsername(username: string) {
     });
   }
 }
+
+export async function updateCustomerProfileImage(
+  username: string,
+  fileId: string,
+) {
+  try {
+    await db
+      .updateTable('customers')
+      .set({ profile_image: fileId })
+      .where('username', '=', username)
+      .executeTakeFirstOrThrow();
+  } catch (error) {
+    throw new HTTPException(400, {
+      message: 'failed to set profile picture',
+      cause: error,
+    });
+  }
+}
