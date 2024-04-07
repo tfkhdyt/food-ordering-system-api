@@ -2,11 +2,8 @@ import { hash, verify as verifyPwd } from 'argon2';
 import { HTTPException } from 'hono/http-exception';
 import { sign, verify } from 'hono/jwt';
 
-import {
-  getProfileImageUrl,
-  uploadProfileImage,
-} from '@/cloudinary/CloudinaryService';
 import { env } from '@/env';
+import { uploadFile } from '@/s3/S3Repository';
 import { type JWTPayload } from '@/types';
 
 import {
@@ -82,7 +79,7 @@ export async function customerLogin(payload: CustomerLoginSchema) {
 
 export async function customerInspect(username: string) {
   const customer = await findCustomerByUsername(username);
-  customer.profile_image &&= await getProfileImageUrl(customer.profile_image);
+  customer.profile_image &&= `${env.S3_ENDPOINT}/${env.S3_BUCKET}/${customer.profile_image}`;
 
   return { ...customer, password: undefined };
 }
@@ -131,9 +128,10 @@ export async function customerRefreshToken(token: string) {
 }
 
 export async function patchCustomerProfileImage(image: File, username: string) {
-  const fileId = await uploadProfileImage(image, username);
+  const key = `profile-images/${username}.${image.name.split('.').pop()}`;
+  await uploadFile(key, image);
 
-  await updateCustomerProfileImage(username, fileId);
+  await updateCustomerProfileImage(username, key);
 
   return { message: 'profile picture updated successfully' };
 }
