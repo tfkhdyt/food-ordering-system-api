@@ -4,7 +4,7 @@ import { Hono } from 'hono';
 import { jwtware, userGuard } from '@/lib';
 
 import { addMenuTypeSchema } from './MenuTypeSchema';
-import { addMenuType } from './MenuTypeService';
+import { addMenuType, listMenuTypes } from './MenuTypeService';
 
 const menuType = new Hono();
 
@@ -21,5 +21,11 @@ menuType.post(
     return c.json(resp, 201);
   },
 );
+
+menuType.get('/', jwtware, userGuard, async (c) => {
+  const resp = await listMenuTypes();
+
+  return c.json(resp);
+});
 
 export default menuType;

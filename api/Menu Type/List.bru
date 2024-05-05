@@ -1,0 +1,15 @@
+meta {
+  name: List
+  type: http
+  seq: 2
+}
+
+get {
+  url: http://localhost:8080/menu-types
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}

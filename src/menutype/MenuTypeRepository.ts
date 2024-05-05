@@ -39,3 +39,16 @@ async function verifyNameAvailability(name: string) {
     });
   }
 }
+
+export async function findAllMenuTypes() {
+  try {
+    const menus = await db.selectFrom('menu_types').selectAll().execute();
+
+    return menus;
+  } catch (error) {
+    throw new HTTPException(500, {
+      message: 'failed to find all menus',
+      cause: error,
+    });
+  }
+}
