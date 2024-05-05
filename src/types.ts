@@ -6,5 +6,6 @@ export type MessageResponse = {
 export type JWTPayload = {
   sub: number;
   username: string;
+  role: 'user' | 'customer';
   exp: number;
 };

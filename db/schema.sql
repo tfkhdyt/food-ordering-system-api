@@ -73,6 +73,37 @@ ALTER SEQUENCE public.customers_id_seq OWNED BY public.customers.id;
 
 
 --
+-- Name: menu_types; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.menu_types (
+    id integer NOT NULL,
+    name character varying(100) NOT NULL,
+    description text
+);
+
+
+--
+-- Name: menu_types_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.menu_types_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: menu_types_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.menu_types_id_seq OWNED BY public.menu_types.id;
+
+
+--
 -- Name: schema_migrations; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -161,6 +192,13 @@ ALTER TABLE ONLY public.customers ALTER COLUMN id SET DEFAULT nextval('public.cu
 
 
 --
+-- Name: menu_types id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.menu_types ALTER COLUMN id SET DEFAULT nextval('public.menu_types_id_seq'::regclass);
+
+
+--
 -- Name: site_informations id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -204,6 +242,22 @@ ALTER TABLE ONLY public.customers
 
 ALTER TABLE ONLY public.customers
     ADD CONSTRAINT customers_username_key UNIQUE (username);
+
+
+--
+-- Name: menu_types menu_types_name_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.menu_types
+    ADD CONSTRAINT menu_types_name_key UNIQUE (name);
+
+
+--
+-- Name: menu_types menu_types_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.menu_types
+    ADD CONSTRAINT menu_types_pkey PRIMARY KEY (id);
 
 
 --
@@ -274,4 +328,5 @@ ALTER TABLE ONLY public.site_informations
 INSERT INTO public.schema_migrations (version) VALUES
     ('20240331001218'),
     ('20240331102714'),
-    ('20240405234210');
+    ('20240405234210'),
+    ('20240505014659');

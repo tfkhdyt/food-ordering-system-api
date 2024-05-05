@@ -43,6 +43,7 @@ export async function customerLogin(payload: CustomerLoginSchema) {
       {
         sub: customer.id,
         username: customer.username,
+        role: 'customer',
         exp: Math.floor(Date.now() / 1000) + 5 * 60,
         iat: Date.now() / 1000,
         nbf: Date.now() / 1000,
@@ -53,6 +54,7 @@ export async function customerLogin(payload: CustomerLoginSchema) {
       {
         sub: customer.id,
         username: customer.username,
+        role: 'customer',
         exp: Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60,
         iat: Date.now() / 1000,
         nbf: Date.now() / 1000,
@@ -81,7 +83,7 @@ export async function customerInspect(username: string) {
   const customer = await findCustomerByUsername(username);
   customer.profile_image &&= `${env.S3_ENDPOINT}/${env.S3_BUCKET}/${customer.profile_image}`;
 
-  return { ...customer, password: undefined };
+  return { ...customer, password: undefined, role: 'customer' };
 }
 
 export async function customerRefreshToken(token: string) {

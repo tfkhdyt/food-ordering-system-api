@@ -4,6 +4,7 @@ import { logger } from 'hono/logger';
 
 import customer from './customer/CustomerController';
 import { env } from './env';
+import menuType from './menutype/MenuTypeController';
 import siteInformation from './site/SiteController';
 import user from './user/UserController';
 
@@ -31,7 +32,8 @@ app
   .use(logger())
   .route('/auth/users', user)
   .route('/auth/customers', customer)
-  .route('/site-informations', siteInformation);
+  .route('/site-informations', siteInformation)
+  .route('/menu-types', menuType);
 
 export default {
   port: env.PORT ?? 8080,

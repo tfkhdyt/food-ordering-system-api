@@ -14,7 +14,7 @@ user.post('/register', zValidator('json', registerSchema), async (c) => {
 
   const resp = await register(payload);
 
-  return c.json(resp, { status: resp.statusCode });
+  return c.json(resp, 201);
 });
 
 user.post('/login', zValidator('json', loginSchema), async (c) => {
@@ -22,7 +22,7 @@ user.post('/login', zValidator('json', loginSchema), async (c) => {
 
   const resp = await login(payload);
 
-  return c.json(resp, { status: resp.statusCode });
+  return c.json(resp, 201);
 });
 
 user.get('/inspect', jwtware, async (c) => {
@@ -38,7 +38,7 @@ user.post('/refresh', zValidator('json', refreshTokenSchema), async (c) => {
 
   const resp = await refreshToken(payload.refresh_token);
 
-  return c.json(resp, { status: resp.statusCode });
+  return c.json(resp);
 });
 
 export default user;

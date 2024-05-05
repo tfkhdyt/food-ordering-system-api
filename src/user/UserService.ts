@@ -16,13 +16,13 @@ type JWTResponse = {
   };
 };
 
-export async function register(newUser: Register): Promise<MessageResponse> {
+export async function register(newUser: Register) {
   try {
     newUser.password = await hash(newUser.password);
 
     await createUser(newUser);
 
-    return { statusCode: 201, message: 'new user has been created' };
+    return { message: 'new user has been created' };
   } catch (error) {
     if (error instanceof HTTPException) throw error;
 
@@ -33,7 +33,7 @@ export async function register(newUser: Register): Promise<MessageResponse> {
   }
 }
 
-export async function login(credentials: Login): Promise<JWTResponse> {
+export async function login(credentials: Login) {
   try {
     const user = await findUserByUsername(credentials.username);
 
@@ -45,6 +45,7 @@ export async function login(credentials: Login): Promise<JWTResponse> {
       {
         sub: user.id,
         username: user.username,
+        role: 'user',
         exp: Math.floor(Date.now() / 1000) + 5 * 60,
         iat: Date.now() / 1000,
         nbf: Date.now() / 1000,
@@ -55,6 +56,7 @@ export async function login(credentials: Login): Promise<JWTResponse> {
       {
         sub: user.id,
         username: user.username,
+        role: 'user',
         exp: Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60,
         iat: Date.now() / 1000,
         nbf: Date.now() / 1000,
@@ -63,7 +65,6 @@ export async function login(credentials: Login): Promise<JWTResponse> {
     );
 
     return {
-      statusCode: 201,
       data: {
         access_token: accessToken,
         refresh_token: refreshToken,
@@ -82,7 +83,7 @@ export async function login(credentials: Login): Promise<JWTResponse> {
 export async function inspect(username: string) {
   const user = await findUserByUsername(username);
 
-  return { ...user, password: undefined };
+  return { ...user, password: undefined, role: 'user' };
 }
 
 export async function refreshToken(token: string) {
@@ -112,7 +113,6 @@ export async function refreshToken(token: string) {
     );
 
     return {
-      statusCode: 201,
       data: {
         access_token: accessToken,
         refresh_token: refreshToken,

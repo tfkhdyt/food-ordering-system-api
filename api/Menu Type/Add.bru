@@ -1,0 +1,22 @@
+meta {
+  name: Add
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:8080/menu-types
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+body:json {
+  {
+    "name": "Ayam",
+    "description": "Makanan yang terbuat dari ayam"
+  }
+}
