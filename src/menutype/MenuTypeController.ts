@@ -22,7 +22,7 @@ menuType.post(
   },
 );
 
-menuType.get('/', jwtware, userGuard, async (c) => {
+menuType.get('/', jwtware, async (c) => {
   const resp = await listMenuTypes();
 
   return c.json(resp);

@@ -1,5 +1,6 @@
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { HTTPException } from 'hono/http-exception';
+import { tryit } from 'radash';
 
 import { env } from '@/env';
 
@@ -13,8 +14,8 @@ const s3Client = new S3Client({
 });
 
 export async function uploadFile(key: string, file: File) {
-  try {
-    await s3Client.send(
+  const [err] = await tryit(async () =>
+    s3Client.send(
       new PutObjectCommand({
         Bucket: env.S3_BUCKET,
         Key: key,
@@ -22,11 +23,12 @@ export async function uploadFile(key: string, file: File) {
         ACL: 'public-read',
         ContentType: file.type,
       }),
-    );
-  } catch (error) {
+    ),
+  )();
+  if (err) {
     throw new HTTPException(400, {
       message: 'failed to upload file to s3',
-      cause: error,
+      cause: err,
     });
   }
 }

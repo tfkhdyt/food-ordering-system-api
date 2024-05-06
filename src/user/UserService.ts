@@ -1,83 +1,82 @@
 import { hash, verify as verifyArgon } from 'argon2';
 import { HTTPException } from 'hono/http-exception';
 import { sign, verify } from 'hono/jwt';
+import { tryit } from 'radash';
 
 import { env } from '@/env';
-import { type JWTPayload, type MessageResponse } from '@/types';
+import { type JWTPayload } from '@/types';
 
 import { createUser, findUserByUsername } from './UserRepository';
 import { type Login, type Register } from './UserSchema';
 
-type JWTResponse = {
-  statusCode: number;
-  data: {
-    access_token: string;
-    refresh_token: string;
-  };
-};
-
 export async function register(newUser: Register) {
-  try {
-    newUser.password = await hash(newUser.password);
-
-    await createUser(newUser);
-
-    return { message: 'new user has been created' };
-  } catch (error) {
-    if (error instanceof HTTPException) throw error;
-
+  const [err, hashedPwd] = await tryit(hash)(newUser.password);
+  if (err) {
     throw new HTTPException(500, {
-      message: 'an error is occured',
-      cause: error,
+      message: 'failed to hash password',
+      cause: err,
     });
   }
+  newUser.password = hashedPwd;
+
+  await createUser(newUser);
+
+  return { message: 'new user has been created' };
 }
 
 export async function login(credentials: Login) {
-  try {
-    const user = await findUserByUsername(credentials.username);
+  const user = await findUserByUsername(credentials.username);
 
-    if (!(await verifyArgon(user.password, credentials.password))) {
-      throw new HTTPException(401, { message: 'password is invalid' });
-    }
-
-    const accessToken = await sign(
-      {
-        sub: user.id,
-        username: user.username,
-        role: 'user',
-        exp: Math.floor(Date.now() / 1000) + 5 * 60,
-        iat: Date.now() / 1000,
-        nbf: Date.now() / 1000,
-      },
-      env.JWT_ACCESS_KEY,
-    );
-    const refreshToken = await sign(
-      {
-        sub: user.id,
-        username: user.username,
-        role: 'user',
-        exp: Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60,
-        iat: Date.now() / 1000,
-        nbf: Date.now() / 1000,
-      },
-      env.JWT_REFRESH_KEY,
-    );
-
-    return {
-      data: {
-        access_token: accessToken,
-        refresh_token: refreshToken,
-      },
-    };
-  } catch (error) {
-    if (error instanceof HTTPException) throw error;
-
+  const [err, isPwdValid] = await tryit(verifyArgon)(
+    user.password,
+    credentials.password,
+  );
+  if (err) {
     throw new HTTPException(500, {
-      message: 'an error is occured',
-      cause: error,
+      message: 'failed to verify password',
+      cause: err,
     });
   }
+  if (!isPwdValid) {
+    throw new HTTPException(401, { message: 'password is invalid' });
+  }
+
+  const [errAccess, accessToken] = await tryit(sign)(
+    {
+      sub: user.id,
+      username: user.username,
+      role: 'user',
+      exp: Math.floor(Date.now() / 1000) + 5 * 60,
+      iat: Date.now() / 1000,
+      nbf: Date.now() / 1000,
+    },
+    env.JWT_ACCESS_KEY,
+  );
+  if (errAccess) {
+    throw new HTTPException(500, { message: 'failed to sign access token' });
+  }
+
+  const [errRefresh, refreshToken] = await tryit(sign)(
+    {
+      sub: user.id,
+      username: user.username,
+      role: 'user',
+      exp: Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60,
+      iat: Date.now() / 1000,
+      nbf: Date.now() / 1000,
+    },
+    env.JWT_REFRESH_KEY,
+  );
+  if (errRefresh) {
+    throw new HTTPException(500, { message: 'failed to sign refresh token' });
+  }
+
+  return {
+    data: {
+      access_token: accessToken,
+      refresh_token: refreshToken,
+    },
+  };
 }
 
 export async function inspect(username: string) {
@@ -87,43 +86,52 @@ export async function inspect(username: string) {
 }
 
 export async function refreshToken(token: string) {
-  try {
-    const jwtPayload = (await verify(token, env.JWT_REFRESH_KEY)) as JWTPayload;
-    const user = await findUserByUsername(jwtPayload.username);
-
-    const accessToken = await sign(
-      {
-        sub: user.id,
-        username: user.username,
-        exp: Math.floor(Date.now() / 1000) + 5 * 60,
-        iat: Date.now() / 1000,
-        nbf: Date.now() / 1000,
-      },
-      env.JWT_ACCESS_KEY,
-    );
-    const refreshToken = await sign(
-      {
-        sub: user.id,
-        username: user.username,
-        exp: Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60,
-        iat: Date.now() / 1000,
-        nbf: Date.now() / 1000,
-      },
-      env.JWT_REFRESH_KEY,
-    );
-
-    return {
-      data: {
-        access_token: accessToken,
-        refresh_token: refreshToken,
-      },
-    };
-  } catch (error) {
-    if (error instanceof HTTPException) throw error;
-
-    throw new HTTPException(500, {
-      message: 'an error is occured',
-      cause: error,
+  const [err, jwtPayload] = (await tryit(verify)(
+    token,
+    env.JWT_REFRESH_KEY,
+  )) as [Error | undefined, JWTPayload];
+  if (err) {
+    throw new HTTPException(401, {
+      message: 'failed to verify refresh token',
     });
   }
+
+  const user = await findUserByUsername(jwtPayload.username);
+
+  const [errAccess, accessToken] = await tryit(sign)(
+    {
+      sub: user.id,
+      username: user.username,
+      role: 'user',
+      exp: Math.floor(Date.now() / 1000) + 5 * 60,
+      iat: Date.now() / 1000,
+      nbf: Date.now() / 1000,
+    },
+    env.JWT_ACCESS_KEY,
+  );
+  if (errAccess) {
+    throw new HTTPException(500, { message: 'failed to sign access token' });
+  }
+
+  const [errRefresh, refreshToken] = await tryit(sign)(
+    {
+      sub: user.id,
+      username: user.username,
+      role: 'user',
+      exp: Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60,
+      iat: Date.now() / 1000,
+      nbf: Date.now() / 1000,
+    },
+    env.JWT_REFRESH_KEY,
+  );
+  if (errRefresh) {
+    throw new HTTPException(500, { message: 'failed to sign refresh token' });
+  }
+
+  return {
+    data: {
+      access_token: accessToken,
+      refresh_token: refreshToken,
+    },
+  };
 }

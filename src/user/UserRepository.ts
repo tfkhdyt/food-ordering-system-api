@@ -1,75 +1,75 @@
 import { HTTPException } from 'hono/http-exception';
 import { type Insertable } from 'kysely';
 import { type Users } from 'kysely-codegen';
+import { tryit } from 'radash';
 
 import db from '@/db';
 
 export async function createUser(newUser: Insertable<Users>) {
-  try {
-    await verifyEmailAvailability(newUser.email);
-    await verifyUsernameAvailability(newUser.username);
+  await verifyEmailAvailability(newUser.email);
+  await verifyUsernameAvailability(newUser.username);
 
-    await db.insertInto('users').values(newUser).executeTakeFirstOrThrow();
-  } catch (error) {
-    if (error instanceof HTTPException) throw error;
-
+  const [err] = await tryit(() =>
+    db.insertInto('users').values(newUser).executeTakeFirstOrThrow(),
+  )();
+  if (err) {
     throw new HTTPException(400, {
       message: 'failed to create new user',
-      cause: error,
+      cause: err,
     });
   }
 }
 
 async function verifyEmailAvailability(email: string) {
-  try {
-    const user = await db
+  const [err, user] = await tryit(() =>
+    db
       .selectFrom('users')
       .select('id')
       .where('email', '=', email)
-      .executeTakeFirst();
-
-    if (user) throw new HTTPException(400, { message: 'email has been used' });
-  } catch (error) {
-    if (error instanceof HTTPException) throw error;
-
+      .executeTakeFirst(),
+  )();
+  if (err) {
     throw new HTTPException(500, {
       message: 'failed to verify email availability',
-      cause: error,
+      cause: err,
     });
   }
+
+  if (user) throw new HTTPException(400, { message: 'email has been used' });
 }
 
 async function verifyUsernameAvailability(username: string) {
-  try {
-    const user = await db
+  const [err, user] = await tryit(() =>
+    db
       .selectFrom('users')
       .select('id')
       .where('username', '=', username)
-      .executeTakeFirst();
-
-    if (user)
-      throw new HTTPException(400, { message: 'username has been used' });
-  } catch (error) {
-    if (error instanceof HTTPException) throw error;
-
+      .executeTakeFirst(),
+  )();
+  if (err) {
     throw new HTTPException(500, {
       message: 'failed to verify username availability',
-      cause: error,
+      cause: err,
     });
   }
+
+  if (user) throw new HTTPException(400, { message: 'username has been used' });
 }
 
 export async function findUserByUsername(username: string) {
-  try {
-    return await db
+  const [err, user] = await tryit(() =>
+    db
       .selectFrom('users')
       .selectAll()
       .where('username', '=', username)
-      .executeTakeFirstOrThrow();
-  } catch (error) {
+      .executeTakeFirstOrThrow(),
+  )();
+  if (err) {
     throw new HTTPException(404, {
       message: `user with username ${username} is not found`,
-      cause: error,
+      cause: err,
     });
   }
+
+  return user;
 }

@@ -1,54 +1,52 @@
 import { HTTPException } from 'hono/http-exception';
 import { Insertable } from 'kysely';
 import { MenuTypes } from 'kysely-codegen';
+import { tryit } from 'radash';
 
 export async function createMenuType(newMenuType: Insertable<MenuTypes>) {
-  try {
-    await verifyNameAvailability(newMenuType.name);
+  await verifyNameAvailability(newMenuType.name);
 
-    await db
-      .insertInto('menu_types')
-      .values(newMenuType)
-      .executeTakeFirstOrThrow();
-  } catch (error) {
-    if (error instanceof HTTPException) throw error;
-
+  const [errInsert] = await tryit(() =>
+    db.insertInto('menu_types').values(newMenuType).executeTakeFirstOrThrow(),
+  )();
+  if (errInsert) {
     throw new HTTPException(400, {
-      message: 'failed to create new menu',
-      cause: error,
+      message: 'failed to insert new menu type',
+      cause: errInsert,
     });
   }
 }
 
 async function verifyNameAvailability(name: string) {
-  try {
-    const menu = await db
+  const [err, menu] = await tryit(() =>
+    db
       .selectFrom('menu_types')
       .select('id')
       .where('name', '=', name)
-      .executeTakeFirst();
-
-    if (menu)
-      throw new HTTPException(400, { message: 'menu type is already existed' });
-  } catch (error) {
-    if (error instanceof HTTPException) throw error;
-
+      .executeTakeFirst(),
+  )();
+  if (err) {
     throw new HTTPException(500, {
-      message: 'failed to verity menu type name availability',
-      cause: error,
+      message: 'failed to verify name availability',
+      cause: err,
     });
   }
+
+  if (menu)
+    throw new HTTPException(400, { message: 'menu type is already existed' });
 }
 
 export async function findAllMenuTypes() {
-  try {
-    const menus = await db.selectFrom('menu_types').selectAll().execute();
+  const [err, menus] = await tryit(() =>
+    db.selectFrom('menu_types').selectAll().execute(),
+  )();
 
-    return menus;
-  } catch (error) {
+  if (err) {
     throw new HTTPException(500, {
-      message: 'failed to find all menus',
-      cause: error,
+      message: 'failed to find all menu types',
+      cause: err,
     });
   }
+
+  return menus;
 }
