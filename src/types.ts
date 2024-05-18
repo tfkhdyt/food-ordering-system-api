@@ -4,7 +4,7 @@ export type MessageResponse = {
 };
 
 export type JWTPayload = {
-  sub: Buffer;
+  sub: string;
   username: string;
   role: 'user' | 'customer';
   exp: number;

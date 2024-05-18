@@ -117,35 +117,15 @@ CREATE TABLE public.schema_migrations (
 --
 
 CREATE TABLE public.site_informations (
-    id integer NOT NULL,
     name character varying(50) NOT NULL,
     description text,
     contact_info character varying(50) NOT NULL,
     address text NOT NULL,
     created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    user_id bytea NOT NULL
+    user_id bytea NOT NULL,
+    id bytea NOT NULL
 );
-
-
---
--- Name: site_informations_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.site_informations_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: site_informations_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.site_informations_id_seq OWNED BY public.site_informations.id;
 
 
 --
@@ -176,13 +156,6 @@ ALTER TABLE ONLY public.customers ALTER COLUMN id SET DEFAULT nextval('public.cu
 --
 
 ALTER TABLE ONLY public.menu_types ALTER COLUMN id SET DEFAULT nextval('public.menu_types_id_seq'::regclass);
-
-
---
--- Name: site_informations id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.site_informations ALTER COLUMN id SET DEFAULT nextval('public.site_informations_id_seq'::regclass);
 
 
 --
@@ -250,6 +223,14 @@ ALTER TABLE ONLY public.site_informations
 
 
 --
+-- Name: site_informations uq_site_info_user_id; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.site_informations
+    ADD CONSTRAINT uq_site_info_user_id UNIQUE (user_id);
+
+
+--
 -- Name: users users_email_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -287,4 +268,6 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20240331102714'),
     ('20240405234210'),
     ('20240505014659'),
-    ('20240518032317');
+    ('20240518032317'),
+    ('20240518034651'),
+    ('20240518041446');
