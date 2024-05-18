@@ -2,14 +2,15 @@ import { hash, verify as verifyArgon } from 'argon2';
 import { HTTPException } from 'hono/http-exception';
 import { sign, verify } from 'hono/jwt';
 import { tryit } from 'radash';
+import { ulid } from 'ulid';
 
 import { env } from '@/env';
 import { type JWTPayload } from '@/types';
 
-import { createUser, findUserByUsername } from './UserRepository';
-import { type Login, type Register } from './UserSchema';
+import * as UserRepository from './UserRepository';
+import { type Login, type RegisterSchema } from './UserSchema';
 
-export async function register(newUser: Register) {
+export async function register(newUser: RegisterSchema) {
   const [err, hashedPwd] = await tryit(hash)(newUser.password);
   if (err) {
     throw new HTTPException(500, {
@@ -17,15 +18,19 @@ export async function register(newUser: Register) {
       cause: err,
     });
   }
+
   newUser.password = hashedPwd;
 
-  await createUser(newUser);
+  await UserRepository.create({
+    ...newUser,
+    id: Buffer.from(ulid(), 'utf8'),
+  });
 
   return { message: 'new user has been created' };
 }
 
 export async function login(credentials: Login) {
-  const user = await findUserByUsername(credentials.username);
+  const user = await UserRepository.showByUsername(credentials.username);
 
   const [err, isPwdValid] = await tryit(verifyArgon)(
     user.password,
@@ -80,7 +85,7 @@ export async function login(credentials: Login) {
 }
 
 export async function inspect(username: string) {
-  const user = await findUserByUsername(username);
+  const user = await UserRepository.showByUsername(username);
 
   return { ...user, password: undefined, role: 'user' };
 }
@@ -96,7 +101,7 @@ export async function refreshToken(token: string) {
     });
   }
 
-  const user = await findUserByUsername(jwtPayload.username);
+  const user = await UserRepository.showByUsername(jwtPayload.username);
 
   const [errAccess, accessToken] = await tryit(sign)(
     {

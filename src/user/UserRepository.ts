@@ -5,7 +5,7 @@ import { tryit } from 'radash';
 
 import db from '@/db';
 
-export async function createUser(newUser: Insertable<Users>) {
+export async function create(newUser: Insertable<Users>) {
   await verifyEmailAvailability(newUser.email);
   await verifyUsernameAvailability(newUser.username);
 
@@ -56,7 +56,7 @@ async function verifyUsernameAvailability(username: string) {
   if (user) throw new HTTPException(400, { message: 'username has been used' });
 }
 
-export async function findUserByUsername(username: string) {
+export async function showByUsername(username: string) {
   const [err, user] = await tryit(() =>
     db
       .selectFrom('users')
@@ -71,5 +71,8 @@ export async function findUserByUsername(username: string) {
     });
   }
 
-  return user;
+  return {
+    ...user,
+    id: user.id.toString(),
+  };
 }

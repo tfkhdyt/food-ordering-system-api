@@ -122,9 +122,9 @@ CREATE TABLE public.site_informations (
     description text,
     contact_info character varying(50) NOT NULL,
     address text NOT NULL,
-    user_id integer NOT NULL,
     created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+    updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    user_id bytea NOT NULL
 );
 
 
@@ -153,35 +153,15 @@ ALTER SEQUENCE public.site_informations_id_seq OWNED BY public.site_informations
 --
 
 CREATE TABLE public.users (
-    id integer NOT NULL,
     full_name character varying(100) NOT NULL,
     contact character varying(25),
     email character varying(100) NOT NULL,
     username character varying(25) NOT NULL,
     password character varying(255) NOT NULL,
     created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+    updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    id bytea NOT NULL
 );
-
-
---
--- Name: users_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.users_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: users_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.users_id_seq OWNED BY public.users.id;
 
 
 --
@@ -203,13 +183,6 @@ ALTER TABLE ONLY public.menu_types ALTER COLUMN id SET DEFAULT nextval('public.m
 --
 
 ALTER TABLE ONLY public.site_informations ALTER COLUMN id SET DEFAULT nextval('public.site_informations_id_seq'::regclass);
-
-
---
--- Name: users id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.users ALTER COLUMN id SET DEFAULT nextval('public.users_id_seq'::regclass);
 
 
 --
@@ -277,14 +250,6 @@ ALTER TABLE ONLY public.site_informations
 
 
 --
--- Name: site_informations site_informations_user_id_key; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.site_informations
-    ADD CONSTRAINT site_informations_user_id_key UNIQUE (user_id);
-
-
---
 -- Name: users users_email_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -309,14 +274,6 @@ ALTER TABLE ONLY public.users
 
 
 --
--- Name: site_informations fk_site_info_user_id; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.site_informations
-    ADD CONSTRAINT fk_site_info_user_id FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
-
-
---
 -- PostgreSQL database dump complete
 --
 
@@ -329,4 +286,5 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20240331001218'),
     ('20240331102714'),
     ('20240405234210'),
-    ('20240505014659');
+    ('20240505014659'),
+    ('20240518032317');

@@ -3,6 +3,7 @@
     "strict": true,
     "jsx": "react-jsx",
     "jsxImportSource": "hono/jsx",
+    "module": "Preserve",
     "moduleResolution": "bundler",
     "paths": {
       "@/*": [
