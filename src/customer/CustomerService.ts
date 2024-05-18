@@ -1,10 +1,11 @@
 import { hash, verify as verifyPwd } from 'argon2';
 import { HTTPException } from 'hono/http-exception';
-import { sign, verify } from 'hono/jwt';
+import { verify } from 'hono/jwt';
 import { tryit } from 'radash';
 import { ulid } from 'ulid';
 
 import { env } from '@/env';
+import { CreateJwtOptions, createJwt } from '@/lib';
 import { uploadFile } from '@/s3/S3Repository';
 import { type JWTPayload } from '@/types';
 
@@ -47,35 +48,20 @@ export async function login(payload: CustomerLoginSchema) {
     throw new HTTPException(401, { message: 'password is invalid' });
   }
 
-  const [errAccess, accessToken] = await tryit(sign)(
-    {
-      sub: customer.id,
-      username: customer.username,
-      role: 'customer',
-      exp: Math.floor(Date.now() / 1000) + 5 * 60,
-      iat: Date.now() / 1000,
-      nbf: Date.now() / 1000,
-    },
-    env.JWT_ACCESS_KEY,
-  );
-  if (errAccess) {
-    throw new HTTPException(500, { message: 'failed to sign access token' });
-  }
+  const jwtOpts: CreateJwtOptions = {
+    role: 'customer',
+    sub: customer.id,
+    username: customer.username,
+  };
 
-  const [errRefresh, refreshToken] = await tryit(sign)(
-    {
-      sub: customer.id,
-      username: customer.username,
-      role: 'customer',
-      exp: Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60,
-      iat: Date.now() / 1000,
-      nbf: Date.now() / 1000,
-    },
-    env.JWT_REFRESH_KEY,
-  );
-  if (errRefresh) {
-    throw new HTTPException(500, { message: 'failed to sign refresh token' });
-  }
+  const accessToken = await createJwt({
+    ...jwtOpts,
+    type: 'access',
+  });
+  const refreshToken = await createJwt({
+    ...jwtOpts,
+    type: 'refresh',
+  });
 
   return {
     data: {
@@ -105,41 +91,20 @@ export async function refreshToken(token: string) {
 
   const customer = await CustomerRepository.showByUsername(claims.username);
 
-  const [errAccess, accessToken] = await tryit(sign)(
-    {
-      sub: customer.id,
-      username: customer.username,
-      role: 'customer',
-      exp: Math.floor(Date.now() / 1000) + 5 * 60,
-      iat: Date.now() / 1000,
-      nbf: Date.now() / 1000,
-    },
-    env.JWT_ACCESS_KEY,
-  );
-  if (errAccess) {
-    throw new HTTPException(500, {
-      message: 'failed to sign access token',
-      cause: errAccess,
-    });
-  }
+  const jwtOpts: CreateJwtOptions = {
+    role: 'customer',
+    sub: customer.id,
+    username: customer.username,
+  };
 
-  const [errRefresh, refreshToken] = await tryit(sign)(
-    {
-      sub: customer.id,
-      username: customer.username,
-      role: 'customer',
-      exp: Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60,
-      iat: Date.now() / 1000,
-      nbf: Date.now() / 1000,
-    },
-    env.JWT_REFRESH_KEY,
-  );
-  if (errRefresh) {
-    throw new HTTPException(500, {
-      message: 'failed to sign refresh token',
-      cause: errRefresh,
-    });
-  }
+  const accessToken = await createJwt({
+    ...jwtOpts,
+    type: 'access',
+  });
+  const refreshToken = await createJwt({
+    ...jwtOpts,
+    type: 'refresh',
+  });
 
   return {
     data: {

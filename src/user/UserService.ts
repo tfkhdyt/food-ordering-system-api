@@ -5,6 +5,7 @@ import { tryit } from 'radash';
 import { ulid } from 'ulid';
 
 import { env } from '@/env';
+import { CreateJwtOptions, createJwt } from '@/lib';
 import { type JWTPayload } from '@/types';
 
 import * as UserRepository from './UserRepository';
@@ -46,35 +47,20 @@ export async function login(credentials: Login) {
     throw new HTTPException(401, { message: 'password is invalid' });
   }
 
-  const [errAccess, accessToken] = await tryit(sign)(
-    {
-      sub: user.id,
-      username: user.username,
-      role: 'user',
-      exp: Math.floor(Date.now() / 1000) + 5 * 60,
-      iat: Date.now() / 1000,
-      nbf: Date.now() / 1000,
-    },
-    env.JWT_ACCESS_KEY,
-  );
-  if (errAccess) {
-    throw new HTTPException(500, { message: 'failed to sign access token' });
-  }
+  const jwtOpts: CreateJwtOptions = {
+    role: 'user',
+    sub: user.id,
+    username: user.username,
+  };
 
-  const [errRefresh, refreshToken] = await tryit(sign)(
-    {
-      sub: user.id,
-      username: user.username,
-      role: 'user',
-      exp: Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60,
-      iat: Date.now() / 1000,
-      nbf: Date.now() / 1000,
-    },
-    env.JWT_REFRESH_KEY,
-  );
-  if (errRefresh) {
-    throw new HTTPException(500, { message: 'failed to sign refresh token' });
-  }
+  const accessToken = await createJwt({
+    ...jwtOpts,
+    type: 'access',
+  });
+  const refreshToken = await createJwt({
+    ...jwtOpts,
+    type: 'refresh',
+  });
 
   return {
     data: {
@@ -103,35 +89,20 @@ export async function refreshToken(token: string) {
 
   const user = await UserRepository.showByUsername(jwtPayload.username);
 
-  const [errAccess, accessToken] = await tryit(sign)(
-    {
-      sub: user.id,
-      username: user.username,
-      role: 'user',
-      exp: Math.floor(Date.now() / 1000) + 5 * 60,
-      iat: Date.now() / 1000,
-      nbf: Date.now() / 1000,
-    },
-    env.JWT_ACCESS_KEY,
-  );
-  if (errAccess) {
-    throw new HTTPException(500, { message: 'failed to sign access token' });
-  }
+  const jwtOpts: CreateJwtOptions = {
+    role: 'user',
+    sub: user.id,
+    username: user.username,
+  };
 
-  const [errRefresh, refreshToken] = await tryit(sign)(
-    {
-      sub: user.id,
-      username: user.username,
-      role: 'user',
-      exp: Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60,
-      iat: Date.now() / 1000,
-      nbf: Date.now() / 1000,
-    },
-    env.JWT_REFRESH_KEY,
-  );
-  if (errRefresh) {
-    throw new HTTPException(500, { message: 'failed to sign refresh token' });
-  }
+  const accessToken = await createJwt({
+    ...jwtOpts,
+    type: 'access',
+  });
+  const refreshToken = await createJwt({
+    ...jwtOpts,
+    type: 'refresh',
+  });
 
   return {
     data: {
