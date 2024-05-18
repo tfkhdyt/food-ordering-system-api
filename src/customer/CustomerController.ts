@@ -8,15 +8,9 @@ import { refreshTokenSchema } from '@/user/UserSchema';
 import {
   customerLoginSchema,
   customerRegisterSchema,
-  setProfileImage as setProfileImageSchema,
+  setProfileImageSchema,
 } from './CustomerSchema';
-import {
-  customerInspect,
-  customerLogin,
-  customerRefreshToken,
-  patchCustomerProfileImage,
-  register,
-} from './CustomerService';
+import * as CustomerService from './CustomerService';
 
 const customer = new Hono();
 
@@ -26,24 +20,24 @@ customer.post(
   async (c) => {
     const newCustomer = c.req.valid('json');
 
-    const resp = await register(newCustomer);
+    const resp = await CustomerService.register(newCustomer);
 
-    return c.json(resp, { status: resp.statusCode });
+    return c.json(resp, 201);
   },
 );
 
 customer.post('/login', zValidator('json', customerLoginSchema), async (c) => {
   const payload = c.req.valid('json');
 
-  const resp = await customerLogin(payload);
+  const resp = await CustomerService.login(payload);
 
-  return c.json(resp, { status: resp.statusCode });
+  return c.json(resp, 201);
 });
 
 customer.get('/inspect', jwtware, async (c) => {
   const claims = c.get('jwtPayload') as JWTPayload;
 
-  const resp = await customerInspect(claims.username);
+  const resp = await CustomerService.inspect(claims.username);
 
   return c.json(resp);
 });
@@ -51,9 +45,9 @@ customer.get('/inspect', jwtware, async (c) => {
 customer.post('/refresh', zValidator('json', refreshTokenSchema), async (c) => {
   const payload = c.req.valid('json');
 
-  const resp = await customerRefreshToken(payload.refresh_token);
+  const resp = await CustomerService.refreshToken(payload.refresh_token);
 
-  return c.json(resp, { status: resp.statusCode });
+  return c.json(resp);
 });
 
 customer.patch(
@@ -64,7 +58,10 @@ customer.patch(
     const payload = c.req.valid('form');
     const claims = c.get('jwtPayload') as JWTPayload;
 
-    const resp = await patchCustomerProfileImage(payload.file, claims.username);
+    const resp = await CustomerService.setProfileImage(
+      payload.file,
+      claims.username,
+    );
 
     return c.json(resp);
   },

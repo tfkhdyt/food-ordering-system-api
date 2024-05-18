@@ -23,7 +23,7 @@ export async function upsert(userId: string, siteInfo: SiteInformation) {
 }
 
 export async function show(userId: string) {
-  const site = await SiteRepository.show(Buffer.from(userId, 'utf8'));
+  const site = await SiteRepository.show(Buffer.from(userId));
 
   return site;
 }

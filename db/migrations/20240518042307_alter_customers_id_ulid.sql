@@ -1,0 +1,9 @@
+-- migrate:up
+TRUNCATE customers CASCADE;
+
+ALTER TABLE customers DROP COLUMN id;
+ALTER TABLE customers ADD COLUMN id BYTEA PRIMARY KEY;
+
+-- migrate:down
+ALTER TABLE customers DROP COLUMN id;
+ALTER TABLE customers ADD COLUMN id SERIAL PRIMARY KEY;

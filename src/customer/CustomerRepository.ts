@@ -3,7 +3,7 @@ import { type Insertable } from 'kysely';
 import { type Customers } from 'kysely-codegen';
 import { tryit } from 'radash';
 
-export async function createCustomer(newCustomer: Insertable<Customers>) {
+export async function create(newCustomer: Insertable<Customers>) {
   await verifyEmailAvailability(newCustomer.email);
   await verifyPhoneAvailability(newCustomer.phone_number);
   await verifyUsernameAvailability(newCustomer.username);
@@ -76,7 +76,7 @@ async function verifyUsernameAvailability(username: string) {
     throw new HTTPException(400, { message: 'username has been used' });
 }
 
-export async function findCustomerByUsername(username: string) {
+export async function showByUsername(username: string) {
   const [err, customer] = await tryit(() =>
     db
       .selectFrom('customers')
@@ -91,13 +91,10 @@ export async function findCustomerByUsername(username: string) {
     });
   }
 
-  return customer;
+  return { ...customer, id: customer.id.toString() };
 }
 
-export async function updateCustomerProfileImage(
-  username: string,
-  fileId: string,
-) {
+export async function updateProfileImage(username: string, fileId: string) {
   const [err] = await tryit(() =>
     db
       .updateTable('customers')

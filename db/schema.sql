@@ -36,7 +36,6 @@ SET default_table_access_method = heap;
 --
 
 CREATE TABLE public.customers (
-    id integer NOT NULL,
     first_name character varying(25) NOT NULL,
     middle_name character varying(25),
     last_name character varying(25),
@@ -48,28 +47,9 @@ CREATE TABLE public.customers (
     password character varying(255) NOT NULL,
     account_status public.account_status DEFAULT 'unverified'::public.account_status NOT NULL,
     created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+    updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    id bytea NOT NULL
 );
-
-
---
--- Name: customers_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.customers_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: customers_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.customers_id_seq OWNED BY public.customers.id;
 
 
 --
@@ -142,13 +122,6 @@ CREATE TABLE public.users (
     updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     id bytea NOT NULL
 );
-
-
---
--- Name: customers id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.customers ALTER COLUMN id SET DEFAULT nextval('public.customers_id_seq'::regclass);
 
 
 --
@@ -270,4 +243,5 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20240505014659'),
     ('20240518032317'),
     ('20240518034651'),
-    ('20240518041446');
+    ('20240518041446'),
+    ('20240518042307');

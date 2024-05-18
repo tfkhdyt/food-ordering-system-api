@@ -23,7 +23,7 @@ export async function register(newUser: RegisterSchema) {
 
   await UserRepository.create({
     ...newUser,
-    id: Buffer.from(ulid(), 'utf8'),
+    id: Buffer.from(ulid()),
   });
 
   return { message: 'new user has been created' };

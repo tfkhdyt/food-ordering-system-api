@@ -18,7 +18,7 @@ export const customerLoginSchema = z.object({
 });
 export type CustomerLoginSchema = z.infer<typeof customerLoginSchema>;
 
-export const setProfileImage = z.object({
+export const setProfileImageSchema = z.object({
   file: z
     .instanceof(File)
     .refine((file) => file.size !== 0, 'file is empty')
