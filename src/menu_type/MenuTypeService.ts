@@ -35,3 +35,9 @@ export async function update(id: string, newMenuType: MenuTypeSchema.Update) {
 
   return { message: 'menu type has been updated' };
 }
+
+export async function destroy(id: string) {
+  await MenuTypeRepository.destroy(Buffer.from(id));
+
+  return { message: 'menu type has been deleted' };
+}

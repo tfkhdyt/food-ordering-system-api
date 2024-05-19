@@ -1,0 +1,15 @@
+meta {
+  name: Delete
+  type: http
+  seq: 5
+}
+
+delete {
+  url: http://localhost:8080/menu-types/01HY71WS635TXP041BAD7DNRK6
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}

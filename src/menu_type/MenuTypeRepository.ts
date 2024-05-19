@@ -118,3 +118,13 @@ export async function update(id: Buffer, newMenuType: Updateable<MenuTypes>) {
       cause: err,
     });
 }
+
+export async function destroy(id: Buffer) {
+  await show(id);
+
+  const [err] = await tryit(() =>
+    db.deleteFrom('menu_types').where('id', '=', id).executeTakeFirstOrThrow(),
+  )();
+  if (err)
+    throw new HTTPException(500, { message: 'failed to delete menu type' });
+}

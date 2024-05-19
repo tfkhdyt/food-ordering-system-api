@@ -71,4 +71,18 @@ menuType.patch(
   },
 );
 
+menuType.delete(
+  '/:id',
+  zValidator('param', MenuTypeSchema.idParam),
+  jwtware,
+  userGuard,
+  async (c) => {
+    const { id } = c.req.valid('param');
+
+    const resp = await MenuTypeService.destroy(id);
+
+    return c.json(resp);
+  },
+);
+
 export default menuType;
