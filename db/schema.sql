@@ -57,30 +57,10 @@ CREATE TABLE public.customers (
 --
 
 CREATE TABLE public.menu_types (
-    id integer NOT NULL,
     name character varying(100) NOT NULL,
-    description text
+    description text,
+    id bytea NOT NULL
 );
-
-
---
--- Name: menu_types_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.menu_types_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: menu_types_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.menu_types_id_seq OWNED BY public.menu_types.id;
 
 
 --
@@ -122,13 +102,6 @@ CREATE TABLE public.users (
     updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     id bytea NOT NULL
 );
-
-
---
--- Name: menu_types id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.menu_types ALTER COLUMN id SET DEFAULT nextval('public.menu_types_id_seq'::regclass);
 
 
 --
@@ -228,6 +201,14 @@ ALTER TABLE ONLY public.users
 
 
 --
+-- Name: site_informations fk_site_info_user_id; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.site_informations
+    ADD CONSTRAINT fk_site_info_user_id FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
+
+
+--
 -- PostgreSQL database dump complete
 --
 
@@ -244,4 +225,6 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20240518032317'),
     ('20240518034651'),
     ('20240518041446'),
-    ('20240518042307');
+    ('20240518042307'),
+    ('20240518050658'),
+    ('20240518231109');

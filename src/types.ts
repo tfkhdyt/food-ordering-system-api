@@ -9,3 +9,10 @@ export type JWTPayload = {
   role: 'user' | 'customer';
   exp: number;
 };
+
+export type PaginationMeta = {
+  page: number;
+  page_size: number;
+  total_items: number;
+  total_pages: number;
+};

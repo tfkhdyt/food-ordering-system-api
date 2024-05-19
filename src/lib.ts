@@ -4,7 +4,7 @@ import { jwt, sign } from 'hono/jwt';
 import { tryit } from 'radash';
 
 import { env } from './env';
-import { JWTPayload } from './types';
+import { JWTPayload, PaginationMeta } from './types';
 
 export const jwtware = jwt({ secret: env.JWT_ACCESS_KEY });
 
@@ -52,4 +52,17 @@ export async function createJwt({
   }
 
   return jwt;
+}
+
+export function newPaginationMeta(
+  page: number,
+  pageSize: number,
+  totalItems: number,
+): PaginationMeta {
+  return {
+    page,
+    page_size: pageSize,
+    total_items: totalItems,
+    total_pages: Math.ceil(totalItems / pageSize),
+  };
 }

@@ -4,7 +4,7 @@ import { logger } from 'hono/logger';
 
 import customer from './customer/CustomerController';
 import { env } from './env';
-import menuType from './menutype/MenuTypeController';
+import menuType from './menu_type/MenuTypeController';
 import siteInformation from './site/SiteController';
 import user from './user/UserController';
 
