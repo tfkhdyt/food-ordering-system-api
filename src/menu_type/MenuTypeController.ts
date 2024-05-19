@@ -42,4 +42,22 @@ menuType.get(
   },
 );
 
+menuType.get(
+  '/:id',
+  zValidator(
+    'param',
+    z.object({
+      id: z.coerce.string().ulid(),
+    }),
+  ),
+  jwtware,
+  async (c) => {
+    const { id } = c.req.valid('param');
+
+    const resp = await MenuTypeService.show(id);
+
+    return c.json(resp);
+  },
+);
+
 export default menuType;

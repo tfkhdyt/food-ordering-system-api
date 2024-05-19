@@ -83,3 +83,21 @@ export async function index(page: number, pageSize: number, q?: string) {
 
   return { menus: menus_, totalItems: Number(totalItems.total_items) };
 }
+
+export async function show(id: Buffer) {
+  const [err, menuType] = await tryit(() =>
+    db
+      .selectFrom('menu_types')
+      .selectAll()
+      .where('id', '=', id)
+      .executeTakeFirstOrThrow(),
+  )();
+  if (err) {
+    throw new HTTPException(404, {
+      message: 'menu type is not found',
+      cause: err,
+    });
+  }
+
+  return { ...menuType, id: menuType.id.toString() };
+}

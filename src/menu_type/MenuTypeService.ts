@@ -23,3 +23,9 @@ export async function index(page: number, pageSize: number, q?: string) {
 
   return { meta: newPaginationMeta(page, pageSize, totalItems), data: menus };
 }
+
+export async function show(id: string) {
+  const menuType = await MenuTypeRepository.show(Buffer.from(id));
+
+  return { data: menuType };
+}
