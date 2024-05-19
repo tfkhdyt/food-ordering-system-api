@@ -1,0 +1,22 @@
+meta {
+  name: Update
+  type: http
+  seq: 4
+}
+
+patch {
+  url: http://localhost:8080/menu-types/01HY71WJKVZJ7ZNGNFA0ESCADS
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+body:json {
+  {
+    "name": "Lauk",
+    "description": "Makanan yang terbuat dari Lauk/Ikan"
+  }
+}

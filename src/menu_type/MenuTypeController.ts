@@ -4,14 +4,14 @@ import { z } from 'zod';
 
 import { jwtware, userGuard } from '@/lib';
 
-import { addMenuTypeSchema } from './MenuTypeSchema';
+import * as MenuTypeSchema from './MenuTypeSchema';
 import * as MenuTypeService from './MenuTypeService';
 
 const menuType = new Hono();
 
 menuType.post(
   '/',
-  zValidator('json', addMenuTypeSchema),
+  zValidator('json', MenuTypeSchema.create),
   jwtware,
   userGuard,
   async (c) => {
@@ -44,17 +44,28 @@ menuType.get(
 
 menuType.get(
   '/:id',
-  zValidator(
-    'param',
-    z.object({
-      id: z.coerce.string().ulid(),
-    }),
-  ),
+  zValidator('param', MenuTypeSchema.idParam),
   jwtware,
   async (c) => {
     const { id } = c.req.valid('param');
 
     const resp = await MenuTypeService.show(id);
+
+    return c.json(resp);
+  },
+);
+
+menuType.patch(
+  '/:id',
+  zValidator('param', MenuTypeSchema.idParam),
+  zValidator('json', MenuTypeSchema.update),
+  jwtware,
+  userGuard,
+  async (c) => {
+    const { id } = c.req.valid('param');
+    const newMenuType = c.req.valid('json');
+
+    const resp = await MenuTypeService.update(id, newMenuType);
 
     return c.json(resp);
   },

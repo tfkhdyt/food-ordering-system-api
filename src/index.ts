@@ -18,10 +18,15 @@ app
     }
 
     if (err instanceof HTTPException) {
-      return c.json(
-        { message: err.message || 'error' },
-        { status: err.status },
-      );
+      let errMsg;
+
+      if (err.status === 400 || err.status === 500) {
+        errMsg = err.message ? `${err.message}: ${err.cause}` : 'error';
+      } else {
+        errMsg = err.message || 'error';
+      }
+
+      return c.json({ message: errMsg }, { status: err.status });
     }
 
     return c.json(

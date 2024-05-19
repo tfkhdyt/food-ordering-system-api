@@ -3,9 +3,9 @@ import { ulid } from 'ulid';
 import { newPaginationMeta } from '@/lib';
 
 import * as MenuTypeRepository from './MenuTypeRepository';
-import { AddMenuTypeSchema } from './MenuTypeSchema';
+import * as MenuTypeSchema from './MenuTypeSchema';
 
-export async function create(payload: AddMenuTypeSchema) {
+export async function create(payload: MenuTypeSchema.Create) {
   await MenuTypeRepository.create({
     ...payload,
     id: Buffer.from(ulid()),
@@ -28,4 +28,10 @@ export async function show(id: string) {
   const menuType = await MenuTypeRepository.show(Buffer.from(id));
 
   return { data: menuType };
+}
+
+export async function update(id: string, newMenuType: MenuTypeSchema.Update) {
+  await MenuTypeRepository.update(Buffer.from(id), newMenuType);
+
+  return { message: 'menu type has been updated' };
 }

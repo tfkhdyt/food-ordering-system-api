@@ -1,5 +1,5 @@
 import { HTTPException } from 'hono/http-exception';
-import { ExpressionBuilder } from 'kysely';
+import { ExpressionBuilder, Updateable } from 'kysely';
 import { Insertable } from 'kysely';
 import { DB, MenuTypes } from 'kysely-codegen';
 import { tryit } from 'radash';
@@ -100,4 +100,21 @@ export async function show(id: Buffer) {
   }
 
   return { ...menuType, id: menuType.id.toString() };
+}
+
+export async function update(id: Buffer, newMenuType: Updateable<MenuTypes>) {
+  await show(id);
+
+  const [err] = await tryit(() =>
+    db
+      .updateTable('menu_types')
+      .set(newMenuType)
+      .where('id', '=', id)
+      .executeTakeFirstOrThrow(),
+  )();
+  if (err)
+    throw new HTTPException(400, {
+      message: 'failed to update menu type',
+      cause: err,
+    });
 }
