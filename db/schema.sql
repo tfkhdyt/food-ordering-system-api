@@ -27,6 +27,16 @@ CREATE TYPE public.account_status AS ENUM (
 );
 
 
+--
+-- Name: menu_status; Type: TYPE; Schema: public; Owner: -
+--
+
+CREATE TYPE public.menu_status AS ENUM (
+    'available',
+    'out_of_stock'
+);
+
+
 SET default_tablespace = '';
 
 SET default_table_access_method = heap;
@@ -60,6 +70,21 @@ CREATE TABLE public.menu_types (
     name character varying(100) NOT NULL,
     description text,
     id bytea NOT NULL
+);
+
+
+--
+-- Name: menus; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.menus (
+    id bytea NOT NULL,
+    name character varying(255) NOT NULL,
+    price real NOT NULL,
+    type_id bytea NOT NULL,
+    image character varying(100),
+    ingredients text,
+    status public.menu_status DEFAULT 'available'::public.menu_status NOT NULL
 );
 
 
@@ -153,6 +178,22 @@ ALTER TABLE ONLY public.menu_types
 
 
 --
+-- Name: menus menus_name_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.menus
+    ADD CONSTRAINT menus_name_key UNIQUE (name);
+
+
+--
+-- Name: menus menus_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.menus
+    ADD CONSTRAINT menus_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: schema_migrations schema_migrations_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -201,6 +242,14 @@ ALTER TABLE ONLY public.users
 
 
 --
+-- Name: menus fk_menu_type_id; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.menus
+    ADD CONSTRAINT fk_menu_type_id FOREIGN KEY (type_id) REFERENCES public.menu_types(id) ON DELETE CASCADE;
+
+
+--
 -- Name: site_informations fk_site_info_user_id; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -227,4 +276,5 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20240518041446'),
     ('20240518042307'),
     ('20240518050658'),
-    ('20240518231109');
+    ('20240518231109'),
+    ('20240521084327');

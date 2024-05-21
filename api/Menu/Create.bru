@@ -1,0 +1,25 @@
+meta {
+  name: Create
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:8080/menus
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+body:json {
+  {
+    "name": "Ikan goreng",
+    "price": 5000,
+    "type_id": "01HY71WJKVZJ7ZNGNFA0ESCADS",
+    "ingredients": "ikan, terus digoreng",
+    "status": "out_of_stock"
+  }
+}
