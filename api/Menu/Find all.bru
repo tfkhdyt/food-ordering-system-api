@@ -1,0 +1,21 @@
+meta {
+  name: Find all
+  type: http
+  seq: 2
+}
+
+get {
+  url: http://localhost:8080/menus?type=01HYN1DMSDFR3Z4GFQXQSHTJ3E
+  body: none
+  auth: bearer
+}
+
+query {
+  type: 01HYN1DMSDFR3Z4GFQXQSHTJ3E
+  ~status: available
+  ~query: upin
+}
+
+auth:bearer {
+  token: {{access_token}}
+}

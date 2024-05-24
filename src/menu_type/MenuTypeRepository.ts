@@ -81,7 +81,7 @@ export async function index(page: number, pageSize: number, q?: string) {
 
   const menus_ = menus?.map((m) => ({ ...m, id: m.id.toString() }));
 
-  return { menus: menus_, totalItems: Number(totalItems.total_items) };
+  return { menus: menus_, totalItems: totalItems.total_items };
 }
 
 export async function show(id: Uint8Array) {

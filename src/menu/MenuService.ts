@@ -1,5 +1,6 @@
 import { ulid } from 'ulid';
 
+import { newPaginationMeta } from '@/lib';
 import * as MenuRepository from '@/menu/MenuRepository.js';
 import type * as MenuSchema from '@/menu/MenuSchema.js';
 
@@ -11,4 +12,18 @@ export async function create(newMenu: MenuSchema.Create) {
   });
 
   return { message: 'menu has been created' };
+}
+
+export async function index(
+  page: number,
+  pageSize: number,
+  opts: MenuRepository.IndexOpts,
+) {
+  const { menus, totalItems } = await MenuRepository.index(
+    page,
+    pageSize,
+    opts,
+  );
+
+  return { meta: newPaginationMeta(page, pageSize, totalItems), data: menus };
 }

@@ -1,10 +1,10 @@
-import { Context, Next } from 'hono';
+import { type Context, type Next } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 import { jwt, sign } from 'hono/jwt';
 import { tryit } from 'radash';
 
 import { env } from './env';
-import { JWTPayload, PaginationMeta } from './types';
+import { type JWTPayload, type PaginationMeta } from './types';
 
 export const jwtware = jwt({ secret: env.JWT_ACCESS_KEY });
 
@@ -62,7 +62,7 @@ export function newPaginationMeta(
   return {
     page,
     page_size: pageSize,
-    total_items: totalItems,
+    total_items: Number(totalItems),
     total_pages: Math.ceil(totalItems / pageSize),
   };
 }

@@ -1,5 +1,6 @@
 import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';
+import { z } from 'zod';
 
 import { jwtware, userGuard } from '@/lib';
 
@@ -18,6 +19,31 @@ menu.post(
     const resp = await MenuService.create(newMenu);
 
     return c.json(resp, 201);
+  },
+);
+
+menu.get(
+  '/',
+  zValidator(
+    'query',
+    z.object({
+      page: z.coerce.number().min(1).default(1),
+      page_size: z.coerce.number().min(1).default(10),
+      status: z.enum(['available', 'out_of_stock']).optional(),
+      type: z.string().ulid().optional(),
+      query: z.string().optional(),
+    }),
+  ),
+  async (c) => {
+    const { page, page_size, status, type, query } = c.req.valid('query');
+
+    const resp = await MenuService.index(page, page_size, {
+      status,
+      menuType: type,
+      q: query,
+    });
+
+    return c.json(resp);
   },
 );
 
