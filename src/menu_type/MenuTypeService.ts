@@ -3,7 +3,7 @@ import { ulid } from 'ulid';
 import { newPaginationMeta } from '@/lib';
 
 import * as MenuTypeRepository from './MenuTypeRepository';
-import * as MenuTypeSchema from './MenuTypeSchema';
+import type * as MenuTypeSchema from './MenuTypeSchema';
 
 export async function create(payload: MenuTypeSchema.Create) {
   await MenuTypeRepository.create({

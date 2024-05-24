@@ -1,13 +1,13 @@
 import { HTTPException } from 'hono/http-exception';
-import { ExpressionBuilder, Updateable } from 'kysely';
-import { Insertable } from 'kysely';
-import { DB, MenuTypes } from 'kysely-codegen';
+import { type ExpressionBuilder, type Updateable } from 'kysely';
+import { type Insertable } from 'kysely';
+import { type DB, type MenuTypes } from 'kysely-codegen';
 import { tryit } from 'radash';
 
 export async function create(newMenuType: Insertable<MenuTypes>) {
   await verifyNameAvailability(newMenuType.name);
 
-  const [errInsert] = await tryit(() =>
+  const [errInsert] = await tryit(async () =>
     db.insertInto('menu_types').values(newMenuType).executeTakeFirstOrThrow(),
   )();
   if (errInsert) {
@@ -19,7 +19,7 @@ export async function create(newMenuType: Insertable<MenuTypes>) {
 }
 
 async function verifyNameAvailability(name: string) {
-  const [err, menu] = await tryit(() =>
+  const [err, menu] = await tryit(async () =>
     db
       .selectFrom('menu_types')
       .select('id')
@@ -61,7 +61,7 @@ export async function index(page: number, pageSize: number, q?: string) {
     queryCount = queryCount.where(where);
   }
 
-  const [err, menus] = await tryit(() => query.execute())();
+  const [err, menus] = await tryit(async () => query.execute())();
   if (err) {
     throw new HTTPException(500, {
       message: 'failed to find all menu types',
@@ -69,7 +69,7 @@ export async function index(page: number, pageSize: number, q?: string) {
     });
   }
 
-  const [errCount, totalItems] = await tryit(() =>
+  const [errCount, totalItems] = await tryit(async () =>
     queryCount.executeTakeFirstOrThrow(),
   )();
   if (errCount) {
@@ -84,12 +84,12 @@ export async function index(page: number, pageSize: number, q?: string) {
   return { menus: menus_, totalItems: Number(totalItems.total_items) };
 }
 
-export async function show(id: Buffer) {
-  const [err, menuType] = await tryit(() =>
+export async function show(id: Uint8Array) {
+  const [err, menuType] = await tryit(async () =>
     db
       .selectFrom('menu_types')
       .selectAll()
-      .where('id', '=', id)
+      .where('id', '=', Buffer.from(id))
       .executeTakeFirstOrThrow(),
   )();
   if (err) {
@@ -102,14 +102,17 @@ export async function show(id: Buffer) {
   return { ...menuType, id: menuType.id.toString() };
 }
 
-export async function update(id: Buffer, newMenuType: Updateable<MenuTypes>) {
+export async function update(
+  id: Uint8Array,
+  newMenuType: Updateable<MenuTypes>,
+) {
   await show(id);
 
-  const [err] = await tryit(() =>
+  const [err] = await tryit(async () =>
     db
       .updateTable('menu_types')
       .set(newMenuType)
-      .where('id', '=', id)
+      .where('id', '=', Buffer.from(id))
       .executeTakeFirstOrThrow(),
   )();
   if (err)
@@ -119,11 +122,14 @@ export async function update(id: Buffer, newMenuType: Updateable<MenuTypes>) {
     });
 }
 
-export async function destroy(id: Buffer) {
+export async function destroy(id: Uint8Array) {
   await show(id);
 
-  const [err] = await tryit(() =>
-    db.deleteFrom('menu_types').where('id', '=', id).executeTakeFirstOrThrow(),
+  const [err] = await tryit(async () =>
+    db
+      .deleteFrom('menu_types')
+      .where('id', '=', Buffer.from(id))
+      .executeTakeFirstOrThrow(),
   )();
   if (err)
     throw new HTTPException(500, { message: 'failed to delete menu type' });

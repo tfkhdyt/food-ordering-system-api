@@ -1,6 +1,6 @@
 import { HTTPException } from 'hono/http-exception';
-import { Insertable } from 'kysely';
-import { Menus } from 'kysely-codegen';
+import { type Insertable } from 'kysely';
+import { type Menus } from 'kysely-codegen';
 import { tryit } from 'radash';
 
 import * as MenuTypeRepository from '@/menu_type/MenuTypeRepository.js';
@@ -9,7 +9,7 @@ export async function create(newMenu: Insertable<Menus>) {
   await verifyNameAvailability(newMenu.name);
   await MenuTypeRepository.show(newMenu.type_id);
 
-  const [err] = await tryit(() =>
+  const [err] = await tryit(async () =>
     db.insertInto('menus').values(newMenu).executeTakeFirstOrThrow(),
   )();
   if (err)
@@ -20,7 +20,7 @@ export async function create(newMenu: Insertable<Menus>) {
 }
 
 async function verifyNameAvailability(name: string) {
-  const [err, menu] = await tryit(() =>
+  const [err, menu] = await tryit(async () =>
     db
       .selectFrom('menus')
       .select('id')

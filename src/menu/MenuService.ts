@@ -1,7 +1,7 @@
 import { ulid } from 'ulid';
 
 import * as MenuRepository from '@/menu/MenuRepository.js';
-import * as MenuSchema from '@/menu/MenuSchema.js';
+import type * as MenuSchema from '@/menu/MenuSchema.js';
 
 export async function create(newMenu: MenuSchema.Create) {
   await MenuRepository.create({

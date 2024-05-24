@@ -9,7 +9,7 @@ export async function create(newUser: Insertable<Users>) {
   await verifyEmailAvailability(newUser.email);
   await verifyUsernameAvailability(newUser.username);
 
-  const [err] = await tryit(() =>
+  const [err] = await tryit(async () =>
     db.insertInto('users').values(newUser).executeTakeFirstOrThrow(),
   )();
   if (err) {
@@ -21,7 +21,7 @@ export async function create(newUser: Insertable<Users>) {
 }
 
 async function verifyEmailAvailability(email: string) {
-  const [err, user] = await tryit(() =>
+  const [err, user] = await tryit(async () =>
     db
       .selectFrom('users')
       .select('id')
@@ -39,7 +39,7 @@ async function verifyEmailAvailability(email: string) {
 }
 
 async function verifyUsernameAvailability(username: string) {
-  const [err, user] = await tryit(() =>
+  const [err, user] = await tryit(async () =>
     db
       .selectFrom('users')
       .select('id')
@@ -57,7 +57,7 @@ async function verifyUsernameAvailability(username: string) {
 }
 
 export async function showByUsername(username: string) {
-  const [err, user] = await tryit(() =>
+  const [err, user] = await tryit(async () =>
     db
       .selectFrom('users')
       .selectAll()

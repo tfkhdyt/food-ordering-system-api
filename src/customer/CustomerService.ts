@@ -5,7 +5,7 @@ import { tryit } from 'radash';
 import { ulid } from 'ulid';
 
 import { env } from '@/env';
-import { CreateJwtOptions, createJwt } from '@/lib';
+import { type CreateJwtOptions, createJwt } from '@/lib';
 import { uploadFile } from '@/s3/S3Repository';
 import { type JWTPayload } from '@/types';
 
@@ -23,6 +23,7 @@ export async function register(newCustomer: CustomerRegisterSchema) {
       cause: err,
     });
   }
+
   newCustomer.password = hashedPwd;
 
   await CustomerRepository.create({ ...newCustomer, id: Buffer.from(ulid()) });

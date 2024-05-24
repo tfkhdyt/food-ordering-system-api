@@ -5,7 +5,7 @@ import { tryit } from 'radash';
 import { ulid } from 'ulid';
 
 import { env } from '@/env';
-import { CreateJwtOptions, createJwt } from '@/lib';
+import { type CreateJwtOptions, createJwt } from '@/lib';
 import { type JWTPayload } from '@/types';
 
 import * as UserRepository from './UserRepository';
@@ -43,6 +43,7 @@ export async function login(credentials: Login) {
       cause: err,
     });
   }
+
   if (!isPwdValid) {
     throw new HTTPException(401, { message: 'password is invalid' });
   }

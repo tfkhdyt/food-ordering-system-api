@@ -8,7 +8,7 @@ export async function create(newCustomer: Insertable<Customers>) {
   await verifyPhoneAvailability(newCustomer.phone_number);
   await verifyUsernameAvailability(newCustomer.username);
 
-  const [err] = await tryit(() =>
+  const [err] = await tryit(async () =>
     db.insertInto('customers').values(newCustomer).executeTakeFirstOrThrow(),
   )();
   if (err) {
@@ -20,7 +20,7 @@ export async function create(newCustomer: Insertable<Customers>) {
 }
 
 async function verifyEmailAvailability(email: string) {
-  const [err, customer] = await tryit(() =>
+  const [err, customer] = await tryit(async () =>
     db
       .selectFrom('customers')
       .select('id')
@@ -39,7 +39,7 @@ async function verifyEmailAvailability(email: string) {
 }
 
 async function verifyPhoneAvailability(phone: string) {
-  const [err, customer] = await tryit(() =>
+  const [err, customer] = await tryit(async () =>
     db
       .selectFrom('customers')
       .select('id')
@@ -58,7 +58,7 @@ async function verifyPhoneAvailability(phone: string) {
 }
 
 async function verifyUsernameAvailability(username: string) {
-  const [err, customer] = await tryit(() =>
+  const [err, customer] = await tryit(async () =>
     db
       .selectFrom('customers')
       .select('id')
@@ -77,7 +77,7 @@ async function verifyUsernameAvailability(username: string) {
 }
 
 export async function showByUsername(username: string) {
-  const [err, customer] = await tryit(() =>
+  const [err, customer] = await tryit(async () =>
     db
       .selectFrom('customers')
       .selectAll()
@@ -95,7 +95,7 @@ export async function showByUsername(username: string) {
 }
 
 export async function updateProfileImage(username: string, fileId: string) {
-  const [err] = await tryit(() =>
+  const [err] = await tryit(async () =>
     db
       .updateTable('customers')
       .set({ profile_image: fileId })

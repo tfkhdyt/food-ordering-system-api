@@ -21,8 +21,11 @@ app
     if (err instanceof HTTPException) {
       let errMsg;
 
-      if (err.status === 400 || err.status === 500) {
-        errMsg = err.message ? `${err.message}: ${err.cause}` : 'error';
+      if (
+        (err.status === 400 || err.status === 500) &&
+        err.cause instanceof Error
+      ) {
+        errMsg = err.message ? `${err.message}: ${err.cause.message}` : 'error';
       } else {
         errMsg = err.message || 'error';
       }

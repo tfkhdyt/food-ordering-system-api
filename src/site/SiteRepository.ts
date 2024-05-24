@@ -1,10 +1,10 @@
 import { HTTPException } from 'hono/http-exception';
-import { type Insertable, Updateable } from 'kysely';
+import { type Insertable, type Updateable } from 'kysely';
 import { type SiteInformations } from 'kysely-codegen';
 import { tryit } from 'radash';
 
 export async function create(siteInfo: Insertable<SiteInformations>) {
-  const [err] = await tryit(() =>
+  const [err] = await tryit(async () =>
     db
       .insertInto('site_informations')
       .values(siteInfo)
@@ -23,7 +23,7 @@ export async function update(
   userId: Buffer,
   siteInfo: Updateable<SiteInformations>,
 ) {
-  const [err] = await tryit(() =>
+  const [err] = await tryit(async () =>
     db
       .updateTable('site_informations')
       .set({ ...siteInfo, updated_at: new Date() })
@@ -39,7 +39,7 @@ export async function update(
 }
 
 export async function show(userId: Buffer) {
-  const [err, site] = await tryit(() =>
+  const [err, site] = await tryit(async () =>
     db
       .selectFrom('site_informations')
       .selectAll()
