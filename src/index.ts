@@ -13,9 +13,9 @@ const app = new Hono();
 
 app
   .onError((err, c) => {
-    console.error('Error:', err);
-    if (err.cause) {
-      console.error(err.cause);
+    console.error('Error:', err.message);
+    if (err.cause && err.cause instanceof Error) {
+      console.error('Cause:', err.cause.message);
     }
 
     if (err instanceof HTTPException) {

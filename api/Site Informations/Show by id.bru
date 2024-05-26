@@ -1,0 +1,15 @@
+meta {
+  name: Show by id
+  type: http
+  seq: 4
+}
+
+get {
+  url: http://localhost:8080/site-informations/01HY4YNYJKWG3ABHCD9JVXJDKN
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}

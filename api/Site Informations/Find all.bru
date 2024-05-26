@@ -1,15 +1,11 @@
 meta {
-  name: Show
+  name: Find all
   type: http
-  seq: 2
+  seq: 3
 }
 
 get {
   url: http://localhost:8080/site-informations
   body: none
-  auth: bearer
-}
-
-auth:bearer {
-  token: {{access_token}}
+  auth: none
 }
