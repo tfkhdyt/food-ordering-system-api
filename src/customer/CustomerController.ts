@@ -3,7 +3,7 @@ import { Hono } from 'hono';
 
 import { jwtware } from '@/lib';
 import { type JWTPayload } from '@/types';
-import { refreshTokenSchema } from '@/user/UserSchema';
+import { refreshToken } from '@/user/UserSchema';
 
 import {
   customerLoginSchema,
@@ -42,7 +42,7 @@ customer.get('/inspect', jwtware, async (c) => {
   return c.json(resp);
 });
 
-customer.post('/refresh', zValidator('json', refreshTokenSchema), async (c) => {
+customer.post('/refresh', zValidator('json', refreshToken), async (c) => {
   const payload = c.req.valid('json');
 
   const resp = await CustomerService.refreshToken(payload.refresh_token);

@@ -98,7 +98,7 @@ export async function updateProfileImage(username: string, fileId: string) {
   const [err] = await tryit(async () =>
     db
       .updateTable('customers')
-      .set({ profile_image: fileId })
+      .set({ profile_image: fileId, updated_at: new Date() })
       .where('username', '=', username)
       .executeTakeFirstOrThrow(),
   )();

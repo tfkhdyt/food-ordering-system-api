@@ -1,5 +1,5 @@
 import { HTTPException } from 'hono/http-exception';
-import { type Insertable } from 'kysely';
+import { type Insertable, type Updateable } from 'kysely';
 import { type Users } from 'kysely-codegen';
 import { tryit } from 'radash';
 
@@ -75,4 +75,35 @@ export async function showByUsername(username: string) {
     ...user,
     id: user.id.toString(),
   };
+}
+
+async function show(id: string) {
+  const [err, user] = await tryit(async () =>
+    db
+      .selectFrom('users')
+      .selectAll()
+      .where('id', '=', Buffer.from(id))
+      .executeTakeFirstOrThrow(),
+  )();
+  if (err)
+    throw new HTTPException(404, { message: 'user is not found', cause: err });
+
+  return { ...user, id: user.id.toString() };
+}
+
+export async function update(id: string, newUser: Updateable<Users>) {
+  await show(id);
+
+  const [err] = await tryit(async () =>
+    db
+      .updateTable('users')
+      .set({ ...newUser, updated_at: new Date() })
+      .where('id', '=', Buffer.from(id))
+      .executeTakeFirstOrThrow(),
+  )();
+  if (err)
+    throw new HTTPException(400, {
+      message: 'failed to update user',
+      cause: err,
+    });
 }

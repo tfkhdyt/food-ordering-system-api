@@ -1,6 +1,6 @@
 import { hash, verify as verifyArgon } from 'argon2';
 import { HTTPException } from 'hono/http-exception';
-import { sign, verify } from 'hono/jwt';
+import { verify } from 'hono/jwt';
 import { tryit } from 'radash';
 import { ulid } from 'ulid';
 
@@ -9,9 +9,9 @@ import { type CreateJwtOptions, createJwt } from '@/lib';
 import { type JWTPayload } from '@/types';
 
 import * as UserRepository from './UserRepository';
-import { type Login, type RegisterSchema } from './UserSchema';
+import type * as UserSchema from './UserSchema';
 
-export async function register(newUser: RegisterSchema) {
+export async function register(newUser: UserSchema.Register) {
   const [err, hashedPwd] = await tryit(hash)(newUser.password);
   if (err) {
     throw new HTTPException(500, {
@@ -30,7 +30,7 @@ export async function register(newUser: RegisterSchema) {
   return { message: 'new user has been created' };
 }
 
-export async function login(credentials: Login) {
+export async function login(credentials: UserSchema.Login) {
   const user = await UserRepository.showByUsername(credentials.username);
 
   const [err, isPwdValid] = await tryit(verifyArgon)(
@@ -111,4 +111,10 @@ export async function refreshToken(token: string) {
       refresh_token: refreshToken,
     },
   };
+}
+
+export async function update(id: string, newUser: UserSchema.Update) {
+  await UserRepository.update(id, newUser);
+
+  return { message: 'user has been updated' };
 }

@@ -1,15 +1,15 @@
 import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';
 
-import { jwtware } from '@/lib';
+import { jwtware, userGuard } from '@/lib';
 import { type JWTPayload } from '@/types';
 
-import { loginSchema, refreshTokenSchema, registerSchema } from './UserSchema';
+import * as UserSchema from './UserSchema';
 import * as UserService from './UserService';
 
 const user = new Hono();
 
-user.post('/register', zValidator('json', registerSchema), async (c) => {
+user.post('/register', zValidator('json', UserSchema.register), async (c) => {
   const payload = c.req.valid('json');
 
   const resp = await UserService.register(payload);
@@ -17,7 +17,7 @@ user.post('/register', zValidator('json', registerSchema), async (c) => {
   return c.json(resp, 201);
 });
 
-user.post('/login', zValidator('json', loginSchema), async (c) => {
+user.post('/login', zValidator('json', UserSchema.login), async (c) => {
   const payload = c.req.valid('json');
 
   const resp = await UserService.login(payload);
@@ -33,12 +33,31 @@ user.get('/inspect', jwtware, async (c) => {
   return c.json(resp);
 });
 
-user.post('/refresh', zValidator('json', refreshTokenSchema), async (c) => {
-  const payload = c.req.valid('json');
+user.post(
+  '/refresh',
+  zValidator('json', UserSchema.refreshToken),
+  async (c) => {
+    const payload = c.req.valid('json');
 
-  const resp = await UserService.refreshToken(payload.refresh_token);
+    const resp = await UserService.refreshToken(payload.refresh_token);
 
-  return c.json(resp);
-});
+    return c.json(resp);
+  },
+);
+
+user.patch(
+  '/me',
+  zValidator('json', UserSchema.update),
+  jwtware,
+  userGuard,
+  async (c) => {
+    const jwtPayload = c.get('jwtPayload') as JWTPayload;
+    const payload = c.req.valid('json');
+
+    const resp = await UserService.update(jwtPayload.sub, payload);
+
+    return c.json(resp);
+  },
+);
 
 export default user;
