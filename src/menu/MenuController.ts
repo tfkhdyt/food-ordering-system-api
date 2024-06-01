@@ -47,4 +47,21 @@ menu.get(
   },
 );
 
+menu.get(
+  '/:id',
+  zValidator(
+    'param',
+    z.object({
+      id: z.string().ulid(),
+    }),
+  ),
+  async (c) => {
+    const { id } = c.req.valid('param');
+
+    const resp = await MenuService.show(id);
+
+    return c.json(resp);
+  },
+);
+
 export default menu;

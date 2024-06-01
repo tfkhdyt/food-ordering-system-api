@@ -1,0 +1,24 @@
+meta {
+  name: Update
+  type: http
+  seq: 5
+}
+
+patch {
+  url: http://localhost:8080/auth/users/me
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+body:json {
+  {
+    "full_name": "Tupik Hidayat",
+    "contact": "0895338865375",
+    "email": "tfkhdyt@proton.me",
+    "username": "tfkhdyt"
+  }
+}

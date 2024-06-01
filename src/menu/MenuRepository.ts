@@ -103,3 +103,20 @@ export async function index(
     })),
   };
 }
+
+export async function show(id: string) {
+  const [err, menu] = await tryit(async () =>
+    db
+      .selectFrom('menus')
+      .selectAll()
+      .where('id', '=', Buffer.from(id))
+      .executeTakeFirstOrThrow(),
+  )();
+  if (err) throw new HTTPException(404, { message: 'menu not found' });
+
+  return {
+    ...menu,
+    id: menu.id.toString(),
+    type_id: menu.type_id.toString(),
+  };
+}
