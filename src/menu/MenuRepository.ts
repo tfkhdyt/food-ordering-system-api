@@ -1,5 +1,5 @@
 import { HTTPException } from 'hono/http-exception';
-import { type Insertable } from 'kysely';
+import { type Insertable, type Updateable } from 'kysely';
 import { type ExpressionBuilder } from 'kysely';
 import { type DB, type Menus } from 'kysely-codegen';
 import { tryit } from 'radash';
@@ -112,11 +112,35 @@ export async function show(id: string) {
       .where('id', '=', Buffer.from(id))
       .executeTakeFirstOrThrow(),
   )();
-  if (err) throw new HTTPException(404, { message: 'menu not found' });
+  if (err)
+    throw new HTTPException(404, { message: 'menu not found', cause: err });
 
   return {
     ...menu,
     id: menu.id.toString(),
     type_id: menu.type_id.toString(),
   };
+}
+
+export async function update(id: string, menu: Updateable<Menus>) {
+  await show(id);
+  if (menu.type_id) await MenuTypeRepository.show(menu.type_id);
+
+  const query = db
+    .updateTable('menus')
+    .set(menu)
+    .where('id', '=', Buffer.from(id));
+
+  const [err] = await tryit(async () =>
+    db
+      .updateTable('menus')
+      .set(menu)
+      .where('id', '=', Buffer.from(id))
+      .executeTakeFirstOrThrow(),
+  )();
+  if (err)
+    throw new HTTPException(500, {
+      message: 'failed to update menu',
+      cause: err,
+    });
 }

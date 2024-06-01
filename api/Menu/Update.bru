@@ -1,0 +1,25 @@
+meta {
+  name: Update
+  type: http
+  seq: 4
+}
+
+patch {
+  url: http://localhost:8080/menus/01HYD6R6CCSFVKY52AZBRZ5QEP
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+body:json {
+  {
+    "name": "Ayam goreng",
+    "price": 10000,
+    "type_id": "01HYN1DMSDFR3Z4GFQXQSHTJ3E",
+    "ingredients": "Kesukaan upin ipin",
+    "status": "available"
+  }
+}

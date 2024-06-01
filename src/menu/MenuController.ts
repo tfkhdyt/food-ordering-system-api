@@ -64,4 +64,25 @@ menu.get(
   },
 );
 
+menu.patch(
+  '/:id',
+  zValidator(
+    'param',
+    z.object({
+      id: z.string().ulid(),
+    }),
+  ),
+  zValidator('json', MenuSchema.update),
+  jwtware,
+  userGuard,
+  async (c) => {
+    const { id } = c.req.valid('param');
+    const payload = c.req.valid('json');
+
+    const resp = await MenuService.update(id, payload);
+
+    return c.json(resp);
+  },
+);
+
 export default menu;

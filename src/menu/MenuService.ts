@@ -33,3 +33,12 @@ export async function show(id: string) {
 
   return { data: menu };
 }
+
+export async function update(id: string, newMenu: MenuSchema.Update) {
+  await MenuRepository.update(id, {
+    ...newMenu,
+    type_id: newMenu.type_id ? Buffer.from(newMenu.type_id) : undefined,
+  });
+
+  return { message: 'menu has been updated' };
+}
